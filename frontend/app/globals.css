@@ -1,0 +1,853 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@import url("https://fonts.googleapis.com/css2?family=Cormorant+Garamond:wght@300;400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Lato:wght@300;400;500&family=Cinzel+Decorative:wght@400;700&display=swap");
+
+@custom-variant dark (&:is(.dark *));
+
+:root {
+  /* Forgotten Empires Luxury Vintage + Kintsugi Marble Theme */
+  --background: #f9f7f4; /* Marble background */
+  --foreground: #1a1a1a; /* Primary text */
+  --card: rgba(255, 255, 255, 0.15); /* Glassmorphism */
+  --card-foreground: #1a1a1a;
+  --popover: rgba(255, 255, 255, 0.9);
+  --popover-foreground: #1a1a1a;
+  --primary: #4b2e2b; /* Burgundy */
+  --primary-foreground: #f9f7f4;
+  --secondary: #2f4f4f; /* Dark slate gray */
+  --secondary-foreground: #f9f7f4;
+  --muted: #d6d0c4; /* Marble veins */
+  --muted-foreground: #5c5c5c; /* Secondary text */
+  --accent: #bfa14a; /* Kintsugi gold base */
+  --accent-foreground: #1a1a1a;
+  --destructive: #dc2626;
+  --destructive-foreground: #ffffff;
+  --border: rgba(191, 161, 74, 0.4); /* Gold border */
+  --input: rgba(255, 255, 255, 0.8);
+  --ring: rgba(191, 161, 74, 0.6);
+  --chart-1: #bfa14a;
+  --chart-2: #4b2e2b;
+  --chart-3: #2f4f4f;
+  --chart-4: #d6d0c4;
+  --chart-5: #5c5c5c;
+  --radius: 0.75rem;
+  --sidebar: rgba(255, 255, 255, 0.15);
+  --sidebar-foreground: #1a1a1a;
+  --sidebar-primary: #bfa14a;
+  --sidebar-primary-foreground: #1a1a1a;
+  --sidebar-accent: #4b2e2b;
+  --sidebar-accent-foreground: #f9f7f4;
+  --sidebar-border: rgba(191, 161, 74, 0.4);
+  --sidebar-ring: rgba(191, 161, 74, 0.6);
+
+  /* Kintsugi gradient */
+  --kintsugi-gradient: linear-gradient(135deg, #bfa14a 0%, #e6d28a 100%);
+}
+
+.dark {
+  /* Enhanced dark theme colors for better contrast and luxury feel */
+  --background: #0f0f0f; /* Deeper black for luxury feel */
+  --foreground: #f9f7f4;
+  --card: rgba(0, 0, 0, 0.4); /* Darker glassmorphism */
+  --card-foreground: #f9f7f4;
+  --popover: rgba(0, 0, 0, 0.9);
+  --popover-foreground: #f9f7f4;
+  --primary: #e6d28a; /* Brighter gold for dark mode */
+  --primary-foreground: #1a1a1a;
+  --secondary: #2f4f4f;
+  --secondary-foreground: #f9f7f4;
+  --muted: #3a3a3a; /* Darker muted */
+  --muted-foreground: #d6d0c4;
+  --accent: #e6d28a; /* Brighter accent gold */
+  --accent-foreground: #0f0f0f; /* Changed from #1a1a1a to #0f0f0f for better contrast against bright gold background */
+  --destructive: #ef4444;
+  --destructive-foreground: #ffffff;
+  --border: rgba(230, 210, 138, 0.3); /* Brighter gold border */
+  --input: rgba(255, 255, 255, 0.05);
+  --ring: rgba(230, 210, 138, 0.5);
+}
+
+@theme inline {
+  --font-serif: "Cormorant Garamond", serif;
+  --font-display: "Playfair Display", serif;
+  --font-sans: "Lato", sans-serif;
+  --font-decorative: "Cinzel Decorative", serif;
+  --color-background: var(--background);
+  --color-foreground: var(--foreground);
+  --color-card: var(--card);
+  --color-card-foreground: var(--card-foreground);
+  --color-popover: var(--popover);
+  --color-popover-foreground: var(--popover-foreground);
+  --color-primary: var(--primary);
+  --color-primary-foreground: var(--primary-foreground);
+  --color-secondary: var(--secondary);
+  --color-secondary-foreground: var(--secondary-foreground);
+  --color-muted: var(--muted);
+  --color-muted-foreground: var(--muted-foreground);
+  --color-accent: var(--accent);
+  --color-accent-foreground: var(--accent-foreground);
+  --color-destructive: var(--destructive);
+  --color-destructive-foreground: var(--destructive-foreground);
+  --color-border: var(--border);
+  --color-input: var(--input);
+  --color-ring: var(--ring);
+  --color-chart-1: var(--chart-1);
+  --color-chart-2: var(--chart-2);
+  --color-chart-3: var(--chart-3);
+  --color-chart-4: var(--chart-4);
+  --color-chart-5: var(--chart-5);
+  --radius-sm: calc(var(--radius) - 4px);
+  --radius-md: calc(var(--radius) - 2px);
+  --radius-lg: var(--radius);
+  --radius-xl: calc(var(--radius) + 4px);
+  --color-sidebar: var(--sidebar);
+  --color-sidebar-foreground: var(--sidebar-foreground);
+  --color-sidebar-primary: var(--sidebar-primary);
+  --color-sidebar-primary-foreground: var(--sidebar-primary-foreground);
+  --color-sidebar-accent: var(--sidebar-accent);
+  --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
+  --color-sidebar-border: var(--sidebar-border);
+  --color-sidebar-ring: var(--sidebar-ring);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+    /* Added smooth transition for theme changes */
+    transition: background-color 0.3s ease, color 0.3s ease;
+  }
+
+  /* Marble texture background */
+  .marble-bg {
+    background: radial-gradient(circle at 20% 80%, rgba(214, 208, 196, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(214, 208, 196, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(191, 161, 74, 0.1) 0%, transparent 50%), var(--background);
+    /* Added transition for smooth theme switching */
+    transition: background 0.3s ease;
+  }
+
+  /* Dark mode marble background variation */
+  .dark .marble-bg {
+    background: radial-gradient(circle at 20% 80%, rgba(58, 58, 58, 0.3) 0%, transparent 50%),
+      radial-gradient(circle at 80% 20%, rgba(58, 58, 58, 0.2) 0%, transparent 50%),
+      radial-gradient(circle at 40% 40%, rgba(230, 210, 138, 0.1) 0%, transparent 50%), var(--background);
+  }
+
+  /* Glassmorphism effect */
+  .glass {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(6px);
+    border: 1px solid rgba(191, 161, 74, 0.4);
+    /* Added transition for smooth theme switching */
+    transition: background 0.3s ease, border-color 0.3s ease;
+  }
+
+  /* Dark mode glassmorphism variation */
+  .dark .glass {
+    background: rgba(0, 0, 0, 0.4);
+    border: 1px solid rgba(230, 210, 138, 0.3);
+  }
+
+  /* Typography classes */
+  .font-serif {
+    font-family: var(--font-serif);
+  }
+
+  .font-display {
+    font-family: var(--font-display);
+  }
+
+  .font-decorative {
+    font-family: var(--font-decorative);
+  }
+
+  /* Smooth scroll */
+  html {
+    scroll-behavior: smooth;
+  }
+
+  /* Golden shine effects and animations */
+  /* Golden text shine effect */
+  .golden-shine {
+    background: linear-gradient(135deg, #bfa14a 0%, #e6d28a 50%, #f4e8a6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: golden-shimmer 3s ease-in-out infinite;
+  }
+
+  .dark .golden-shine {
+    background: linear-gradient(135deg, #e6d28a 0%, #f4e8a6 50%, #fff8dc 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: golden-shimmer 3s ease-in-out infinite;
+  }
+
+  /* Golden shimmer animation */
+  @keyframes golden-shimmer {
+    0%,
+    100% {
+      background-position: 0% 50%;
+    }
+    50% {
+      background-position: 100% 50%;
+    }
+  }
+
+  /* Golden glow effect for buttons */
+  .golden-glow {
+    position: relative;
+    overflow: hidden;
+  }
+
+  .golden-glow::before {
+    content: "";
+    position: absolute;
+    top: 0;
+    left: -100%;
+    width: 100%;
+    height: 100%;
+    background: linear-gradient(90deg, transparent, rgba(230, 210, 138, 0.4), transparent);
+    transition: left 0.6s ease;
+  }
+
+  .golden-glow:hover::before {
+    left: 100%;
+  }
+
+  /* Enhanced hover effects */
+  .luxury-hover {
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+  }
+
+  .luxury-hover:hover {
+    transform: translateY(-2px) scale(1.02);
+    box-shadow: 0 20px 40px rgba(191, 161, 74, 0.3);
+  }
+
+  /* Floating animation for decorative elements */
+  .float-animation {
+    animation: float 6s ease-in-out infinite;
+  }
+
+  @keyframes float {
+    0%,
+    100% {
+      transform: translateY(0px);
+    }
+    50% {
+      transform: translateY(-10px);
+    }
+  }
+
+  /* Pulse glow effect */
+  .pulse-glow {
+    animation: pulse-glow 2s ease-in-out infinite alternate;
+  }
+
+  @keyframes pulse-glow {
+    from {
+      box-shadow: 0 0 20px rgba(191, 161, 74, 0.4);
+    }
+    to {
+      box-shadow: 0 0 30px rgba(230, 210, 138, 0.6);
+    }
+  }
+
+  /* Professional button styles */
+  .btn-professional {
+    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+    overflow: hidden;
+    color: #f9f7f4;
+  }
+
+  .btn-professional::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: linear-gradient(135deg, #bfa14a, #e6d28a, #f4e8a6);
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+  }
+
+  .dark .btn-professional {
+    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
+    color: #f9f7f4;
+  }
+
+  /* Professional large button styling */
+  .btn-professional-large {
+    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
+    border: 2px solid transparent;
+    background-clip: padding-box;
+    position: relative;
+    overflow: hidden;
+    color: #f9f7f4;
+  }
+
+  .btn-professional-large::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    padding: 2px;
+    background: linear-gradient(135deg, #bfa14a, #e6d28a, #f4e8a6);
+    border-radius: inherit;
+    mask: linear-gradient(#fff 0 0) content-box, linear-gradient(#fff 0 0);
+    mask-composite: xor;
+    -webkit-mask-composite: xor;
+  }
+
+  .dark .btn-professional-large {
+    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
+    color: #f9f7f4;
+  }
+
+  /* Professional square button styling - more rounded */
+  .btn-professional-square {
+    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
+    border: none; /* No border */
+    border-radius: 12px; /* More rounded */
+    color: #f9f7f4;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .dark .btn-professional-square {
+    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
+    color: #f9f7f4;
+  }
+
+  /* Professional square button styling with golden aura - more rounded */
+  .btn-professional-square-aura {
+    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
+    border: none;
+    border-radius: 16px; /* More rounded buttons */
+    color: #f9f7f4;
+    position: relative;
+    overflow: hidden;
+    box-shadow: 0 0 30px rgba(230, 210, 138, 0.3); /* Golden aura effect */
+  }
+
+  .btn-professional-square-aura::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, rgba(230, 210, 138, 0.4), rgba(191, 161, 74, 0.2), rgba(230, 210, 138, 0.4));
+    border-radius: inherit;
+    z-index: -1;
+    filter: blur(8px); /* Diffused golden aura */
+  }
+
+  .dark .btn-professional-square-aura {
+    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
+    color: #f9f7f4;
+    box-shadow: 0 0 30px rgba(230, 210, 138, 0.4);
+  }
+
+  .dark .btn-professional-square-aura::before {
+    background: radial-gradient(ellipse, rgba(230, 210, 138, 0.5) 0%, rgba(244, 232, 166, 0.3) 40%, transparent 70%);
+  }
+
+  /* New external golden aura button styling for Explorar API - smaller buttons */
+  .btn-professional-square-aura-external {
+    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
+    border: none;
+    border-radius: 12px; /* Shared border radius for consistency */
+    color: #f9f7f4;
+    position: relative;
+    overflow: visible; /* Allow external aura */
+    transition: all 0.5s ease; /* Slower transition */
+  }
+
+  .btn-professional-square-aura-external::before {
+    content: "";
+    position: absolute;
+    inset: -10px; /* External aura positioning around entire contour */
+    background: radial-gradient(ellipse, rgba(230, 210, 138, 0.4) 0%, rgba(191, 161, 74, 0.2) 50%, transparent 80%);
+    border-radius: 22px; /* Matches button radius plus aura offset */
+    z-index: -1;
+    filter: blur(15px); /* More diffused external golden aura around entire contour */
+    opacity: 0.8;
+  }
+
+  .dark .btn-professional-square-aura-external {
+    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
+    color: #f9f7f4;
+  }
+
+  .dark .btn-professional-square-aura-external::before {
+    background: radial-gradient(ellipse, rgba(230, 210, 138, 0.5) 0%, rgba(244, 232, 166, 0.3) 50%, transparent 80%);
+  }
+
+  /* New external golden aura button styling for Documentación - smaller buttons */
+  .btn-documentation-enhanced-aura-external {
+    border: 2px solid #bfa14a;
+    color: #bfa14a;
+    background: rgba(255, 255, 255, 0.05);
+    border-radius: 12px; /* Shared border radius for consistency */
+    position: relative;
+    overflow: visible; /* Allow external aura */
+    transition: all 0.6s ease; /* Slower transition */
+  }
+
+  .btn-documentation-enhanced-aura-external::before {
+    content: "";
+    position: absolute;
+    inset: -10px; /* External aura positioning around entire contour */
+    background: radial-gradient(ellipse, rgba(230, 210, 138, 0.3) 0%, rgba(191, 161, 74, 0.15) 50%, transparent 80%);
+    border-radius: 22px; /* Matches button radius plus aura offset */
+    z-index: -1;
+    filter: blur(15px); /* More diffused external golden aura around entire contour */
+    opacity: 0.7;
+  }
+
+  .btn-documentation-enhanced-aura-external:hover {
+    background: rgba(191, 161, 74, 0.1);
+    color: #ffffff; /* White shiny text on hover */
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.7), 0 0 40px rgba(244, 232, 166, 0.5);
+    border-color: #e6d28a;
+    transform: scale(1.05);
+  }
+
+  .dark .btn-documentation-enhanced-aura-external {
+    border: 2px solid #e6d28a;
+    color: #e6d28a;
+    background: rgba(0, 0, 0, 0.05);
+  }
+
+  .dark .btn-documentation-enhanced-aura-external::before {
+    background: radial-gradient(ellipse, rgba(230, 210, 138, 0.4) 0%, rgba(244, 232, 166, 0.2) 50%, transparent 80%);
+  }
+
+  .dark .btn-documentation-enhanced-aura-external:hover {
+    background: rgba(230, 210, 138, 0.1);
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.7), 0 0 40px rgba(244, 232, 166, 0.5);
+    border-color: #f4e8a6;
+    transform: scale(1.05);
+  }
+
+  /* Professional KPI card styling with sacred appearance */
+  .kpi-card {
+    background: rgba(255, 255, 255, 0.15);
+    backdrop-filter: blur(6px);
+    border: 2px solid rgba(191, 161, 74, 0.6);
+    border-radius: 12px;
+    padding: 24px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+  }
+
+  .kpi-card::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(230, 210, 138, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .kpi-card:hover::before {
+    opacity: 1;
+  }
+
+  .kpi-card:hover {
+    transform: translateY(-4px);
+    border-color: rgba(230, 210, 138, 0.8);
+    box-shadow: 0 12px 32px rgba(191, 161, 74, 0.3), 0 0 20px rgba(230, 210, 138, 0.4);
+  }
+
+  .dark .kpi-card {
+    background: rgba(0, 0, 0, 0.4);
+    border: 2px solid rgba(230, 210, 138, 0.5);
+  }
+
+  .dark .kpi-card:hover {
+    border-color: rgba(230, 210, 138, 0.9);
+    box-shadow: 0 12px 32px rgba(230, 210, 138, 0.2), 0 0 20px rgba(230, 210, 138, 0.5);
+  }
+
+  /* Compact KPI card styling for larger containers with smaller numbers */
+  .kpi-card-compact {
+    background: rgba(255, 255, 255, 0.9);
+    border: 2px solid rgba(191, 161, 74, 0.6);
+    border-radius: 12px;
+    padding: 40px 24px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    min-height: 160px;
+    aspect-ratio: 1;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .kpi-card-compact::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(230, 210, 138, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .kpi-card-compact:hover::before {
+    opacity: 1;
+  }
+
+  .kpi-card-compact:hover {
+    transform: translateY(-6px) scale(1.02);
+    border-color: rgba(230, 210, 138, 0.8);
+    box-shadow: 0 16px 40px rgba(191, 161, 74, 0.3), 0 0 24px rgba(230, 210, 138, 0.4);
+  }
+
+  .dark .kpi-card-compact {
+    background: rgba(0, 0, 0, 0.6);
+    border: 2px solid rgba(230, 210, 138, 0.5);
+  }
+
+  .dark .kpi-card-compact:hover {
+    border-color: rgba(230, 210, 138, 0.9);
+    box-shadow: 0 16px 40px rgba(230, 210, 138, 0.2), 0 0 24px rgba(230, 210, 138, 0.5);
+  }
+
+  /* Compact sacred number styling - smaller numbers that take less space */
+  .sacred-number-compact {
+    font-family: var(--font-decorative);
+    font-size: 2.5rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #bfa14a 0%, #e6d28a 50%, #f4e8a6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: golden-shimmer 3s ease-in-out infinite;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    line-height: 1;
+  }
+
+  .kpi-card-compact:hover .sacred-number-compact {
+    text-shadow: 0 0 20px rgba(230, 210, 138, 0.6);
+    transform: scale(1.05);
+  }
+
+  .dark .sacred-number-compact {
+    background: linear-gradient(135deg, #e6d28a 0%, #f4e8a6 50%, #fff8dc 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+  }
+
+  @media (min-width: 768px) {
+    .sacred-number-compact {
+      font-size: 3rem;
+    }
+  }
+
+  /* Square KPI card styling - completely square, formal appearance */
+  .kpi-card-square {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(191, 161, 74, 0.6);
+    border-radius: 0; /* Completely square - no rounded corners */
+    padding: 40px 24px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    min-height: 140px;
+    aspect-ratio: 1; /* Perfect square */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .kpi-card-square::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(230, 210, 138, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .kpi-card-square:hover::before {
+    opacity: 1;
+  }
+
+  .kpi-card-square:hover {
+    transform: translateY(-6px) scale(1.02);
+    border-color: rgba(230, 210, 138, 0.8);
+    box-shadow: 0 16px 40px rgba(191, 161, 74, 0.3), 0 0 24px rgba(230, 210, 138, 0.4);
+  }
+
+  .dark .kpi-card-square {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(230, 210, 138, 0.5);
+  }
+
+  .dark .kpi-card-square:hover {
+    border-color: rgba(230, 210, 138, 0.9);
+    box-shadow: 0 16px 40px rgba(230, 210, 138, 0.2), 0 0 24px rgba(230, 210, 138, 0.5);
+  }
+
+  /* Square sacred number styling - smaller text for formal appearance */
+  .sacred-number-square {
+    font-family: var(--font-decorative);
+    font-size: 2.25rem; /* Smaller than before for more formal look */
+    font-weight: 700;
+    background: linear-gradient(135deg, #bfa14a 0%, #e6d28a 50%, #f4e8a6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: golden-shimmer 3s ease-in-out infinite;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    line-height: 1;
+  }
+
+  .kpi-card-square:hover .sacred-number-square {
+    text-shadow: 0 0 20px rgba(230, 210, 138, 0.6);
+    transform: scale(1.05);
+  }
+
+  .dark .sacred-number-square {
+    background: linear-gradient(135deg, #e6d28a 0%, #f4e8a6 50%, #fff8dc 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+  }
+
+  @media (min-width: 768px) {
+    .sacred-number-square {
+      font-size: 2.5rem;
+    }
+  }
+
+  /* Enhanced golden number styling with sacred weight */
+  .sacred-number {
+    font-family: var(--font-decorative);
+    font-size: 3rem;
+    font-weight: 700;
+    background: linear-gradient(135deg, #bfa14a 0%, #e6d28a 50%, #f4e8a6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: golden-shimmer 3s ease-in-out infinite;
+    margin-bottom: 8px;
+    transition: all 0.3s ease;
+  }
+
+  .kpi-card:hover .sacred-number {
+    text-shadow: 0 0 20px rgba(230, 210, 138, 0.6);
+    transform: scale(1.05);
+  }
+
+  .dark .sacred-number {
+    background: linear-gradient(135deg, #e6d28a 0%, #f4e8a6 50%, #fff8dc 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+  }
+
+  @media (min-width: 768px) {
+    .sacred-number {
+      font-size: 4rem;
+    }
+  }
+
+  /* New rectangular KPI card styling - completely rectangular, wider than tall, no rounded corners */
+  .kpi-card-rectangular {
+    background: rgba(255, 255, 255, 0.95);
+    border: 2px solid rgba(191, 161, 74, 0.6);
+    border-radius: 0; /* Completely rectangular - no rounded corners */
+    padding: 32px 24px;
+    text-align: center;
+    transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
+    position: relative;
+    overflow: hidden;
+    min-height: 120px;
+    aspect-ratio: 3 / 2; /* Wider than tall */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+  }
+
+  .kpi-card-rectangular::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at center, rgba(230, 210, 138, 0.1) 0%, transparent 70%);
+    opacity: 0;
+    transition: opacity 0.4s ease;
+  }
+
+  .kpi-card-rectangular:hover::before {
+    opacity: 1;
+  }
+
+  .kpi-card-rectangular:hover {
+    transform: translateY(-6px) scale(1.02);
+    border-color: rgba(230, 210, 138, 0.8);
+    box-shadow: 0 16px 40px rgba(191, 161, 74, 0.3), 0 0 24px rgba(230, 210, 138, 0.4);
+  }
+
+  .dark .kpi-card-rectangular {
+    background: rgba(0, 0, 0, 0.7);
+    border: 2px solid rgba(230, 210, 138, 0.5);
+  }
+
+  .dark .kpi-card-rectangular:hover {
+    border-color: rgba(230, 210, 138, 0.9);
+    box-shadow: 0 16px 40px rgba(230, 210, 138, 0.2), 0 0 24px rgba(230, 210, 138, 0.5);
+  }
+
+  /* Rectangular sacred number styling - smaller text for formal appearance */
+  .sacred-number-rectangular {
+    font-family: var(--font-decorative);
+    font-size: 2rem; /* Smaller numbers for more formal look */
+    font-weight: 700;
+    background: linear-gradient(135deg, #bfa14a 0%, #e6d28a 50%, #f4e8a6 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: golden-shimmer 3s ease-in-out infinite;
+    margin-bottom: 12px;
+    transition: all 0.3s ease;
+    line-height: 1;
+  }
+
+  .kpi-card-rectangular:hover .sacred-number-rectangular {
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 35px rgba(244, 232, 166, 0.6);
+    transform: scale(1.05);
+  }
+
+  /* Enhanced dark mode shine effect for better visibility */
+  .dark .sacred-number-rectangular {
+    background: linear-gradient(135deg, #f4e8a6 0%, #fff8dc 50%, #ffffff 100%);
+    background-clip: text;
+    -webkit-background-clip: text;
+    -webkit-text-fill-color: transparent;
+    background-size: 200% 200%;
+    animation: golden-shimmer 3s ease-in-out infinite;
+  }
+
+  .dark .kpi-card-rectangular:hover .sacred-number-rectangular {
+    text-shadow: 0 0 25px rgba(255, 255, 255, 0.8), 0 0 35px rgba(244, 232, 166, 0.6);
+    transform: scale(1.05);
+  }
+
+  @media (min-width: 768px) {
+    .sacred-number-rectangular {
+      font-size: 2.25rem;
+    }
+  }
+
+  /* Enhanced documentation button with slower transition and better shiny hover effect */
+  .btn-documentation-enhanced {
+    border: 2px solid #bfa14a;
+    color: #bfa14a;
+    background: rgba(255, 255, 255, 0.9);
+    box-shadow: 0 6px 16px rgba(191, 161, 74, 0.25); /* Light shadow */
+    transition: all 0.5s ease; /* Slower transition */
+    border-radius: 12px; /* More rounded */
+  }
+
+  .btn-documentation-enhanced:hover {
+    background: linear-gradient(135deg, rgba(191, 161, 74, 0.2), rgba(230, 210, 138, 0.3));
+    color: #ffffff; /* White shiny text on hover */
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 25px rgba(255, 255, 255, 0.6); /* Enhanced shiny effect */
+    border-color: #e6d28a;
+    box-shadow: 0 10px 24px rgba(191, 161, 74, 0.35);
+    transform: scale(1.05); /* Hover scale effect */
+  }
+
+  .dark .btn-documentation-enhanced {
+    border: 2px solid #e6d28a;
+    color: #e6d28a;
+    background: rgba(0, 0, 0, 0.6);
+    box-shadow: 0 6px 16px rgba(230, 210, 138, 0.25);
+  }
+
+  .dark .btn-documentation-enhanced:hover {
+    background: linear-gradient(135deg, rgba(230, 210, 138, 0.2), rgba(244, 232, 166, 0.3));
+    color: #ffffff;
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 25px rgba(255, 255, 255, 0.6);
+    border-color: #f4e8a6;
+    box-shadow: 0 10px 24px rgba(191, 161, 74, 0.35);
+    transform: scale(1.05);
+  }
+
+  /* Enhanced documentation button with golden aura and slower transition */
+  .btn-documentation-enhanced-aura {
+    border: 2px solid #bfa14a;
+    color: #bfa14a;
+    background: rgba(255, 255, 255, 0.05); /* More transparent background */
+    box-shadow: 0 6px 16px rgba(191, 161, 74, 0.25), 0 0 30px rgba(230, 210, 138, 0.2); /* Added golden aura */
+    transition: all 0.6s ease; /* Even slower transition */
+    border-radius: 16px; /* More rounded */
+    position: relative;
+    overflow: hidden;
+  }
+
+  .btn-documentation-enhanced-aura::before {
+    content: "";
+    position: absolute;
+    inset: -2px;
+    background: linear-gradient(45deg, rgba(230, 210, 138, 0.3), rgba(191, 161, 74, 0.1), rgba(230, 210, 138, 0.3));
+    border-radius: inherit;
+    z-index: -1;
+    filter: blur(10px); /* Very diffused golden aura */
+  }
+
+  .btn-documentation-enhanced-aura:hover {
+    background: rgba(191, 161, 74, 0.1); /* More subtle hover background */
+    color: #ffffff; /* White shiny text on hover */
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.7), 0 0 40px rgba(244, 232, 166, 0.5); /* Enhanced shiny effect */
+    border-color: #e6d28a;
+    box-shadow: 0 10px 24px rgba(191, 161, 74, 0.35), 0 0 40px rgba(230, 210, 138, 0.4);
+    transform: scale(1.05);
+  }
+
+  .dark .btn-documentation-enhanced-aura {
+    border: 2px solid #e6d28a;
+    color: #e6d28a;
+    background: rgba(0, 0, 0, 0.05); /* More transparent background */
+    box-shadow: 0 6px 16px rgba(230, 210, 138, 0.25), 0 0 30px rgba(230, 210, 138, 0.3);
+  }
+
+  .dark .btn-documentation-enhanced-aura:hover {
+    background: rgba(230, 210, 138, 0.1);
+    color: #ffffff;
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.7), 0 0 40px rgba(244, 232, 166, 0.5);
+    border-color: #f4e8a6;
+    transform: scale(1.05);
+  }
+}
