@@ -63,21 +63,15 @@ builder.Services.AddAuthentication("Bearer") //Especifica que el esquema de aute
         };
     });
 
-//Configure DbContext with SQLite
-var connectionString = builder.Configuration.GetConnectionString("ForgottenEmpireBDConnectionString");
-var connection = new SqliteConnection(connectionString);
-connection.Open();
-
-//Set journal mode to DELETE using PRAGMA statement
-using (var command = connection.CreateCommand())
+// Configure DbContext with SQLite
+builder.Services.AddDbContext<ApplicationContext>(options =>
 {
-    command.CommandText = "PRAGMA journal_mode=DELETE;"; //Para que no nos cree mas de un archivo cuando persisnte los objetos
-    command.ExecuteNonQuery();
-}
+    // Obtenemos la cadena de conexión correcta del appsettings.json
+    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-//Contex
-builder.Services.AddDbContext<ApplicationContext>(DbContextOptions =>
-    DbContextOptions.UseSqlite(connection));
+    // Configuramos EF Core para que use SQLite con esa cadena de conexión
+    options.UseSqlite(connectionString);
+});
 
 //Age
 builder.Services.AddScoped<IAgeRepository, AgeRepository>();
