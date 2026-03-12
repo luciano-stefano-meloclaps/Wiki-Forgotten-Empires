@@ -12,6 +12,18 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
+// CORS específica para nuestro entorno de desarrollo.
+var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy(name: MyAllowSpecificOrigins,
+                      policy =>
+                      {
+                          policy.WithOrigins("http://localhost:3000") // Solo permitimos este origen
+                                .AllowAnyHeader()                     // Permitimos cualquier cabecera (Content-Type, etc.)
+                                .AllowAnyMethod();                    // Permitimos cualquier método (GET, POST, etc.)
+                      });
+});
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
@@ -99,6 +111,8 @@ if (app.Environment.IsDevelopment())
 }
 
 app.UseHttpsRedirection();
+
+app.UseCors(MyAllowSpecificOrigins); // Aplicamos política de CORS.
 
 //Para que las Request pasen por el middleware de autenticación
 app.UseAuthentication();
