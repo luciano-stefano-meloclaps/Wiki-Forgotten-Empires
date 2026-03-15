@@ -12,7 +12,7 @@ using Microsoft.OpenApi.Models;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// CORS específica para nuestro entorno de desarrollo.
+// CORS especï¿½fica para nuestro entorno de desarrollo.
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
@@ -21,21 +21,21 @@ builder.Services.AddCors(options =>
                       {
                           policy.WithOrigins("http://localhost:3000") // Solo permitimos este origen
                                 .AllowAnyHeader()                     // Permitimos cualquier cabecera (Content-Type, etc.)
-                                .AllowAnyMethod();                    // Permitimos cualquier método (GET, POST, etc.)
+                                .AllowAnyMethod();                    // Permitimos cualquier mï¿½todo (GET, POST, etc.)
                       });
 });
 builder.Services.AddControllers();
 
 builder.Services.AddEndpointsApiExplorer();
 
-//  Swagger => Añadir un header de nombre Authorize con el siguiente valor Bearer
+//  Swagger => Aï¿½adir un header de nombre Authorize con el siguiente valor Bearer
 builder.Services.AddSwaggerGen(setupAction =>
 {
     setupAction.AddSecurityDefinition("ApiBearerAuth", new OpenApiSecurityScheme //Github ConsultaAlumnos
     {
         Type = SecuritySchemeType.Http,
         Scheme = "Bearer",
-        Description = "Acá pega el token generado al loguearse."
+        Description = "Acï¿½ pega el token generado al loguearse."
     });
 
     setupAction.AddSecurityRequirement(new OpenApiSecurityRequirement
@@ -54,10 +54,10 @@ builder.Services.AddSwaggerGen(setupAction =>
     });
 });
 
-//Configuración de JWT
+//Configuraciï¿½n de JWT
 //Linea 52 a 54: Chequeos JWT de la Request
 //Linea 55 a 58: Contra que comparamos para validar el token
-builder.Services.AddAuthentication("Bearer") //Especifica que el esquema de autenticación es Bearer
+builder.Services.AddAuthentication("Bearer") //Especifica que el esquema de autenticaciï¿½n es Bearer
     .AddJwtBearer(options =>// Configura de la autenicacion JWT
     {
         options.TokenValidationParameters = new TokenValidationParameters
@@ -78,10 +78,10 @@ builder.Services.AddAuthentication("Bearer") //Especifica que el esquema de aute
 // Configure DbContext with SQLite
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
-    // Obtenemos la cadena de conexión correcta del appsettings.json
+    // Obtenemos la cadena de conexiï¿½n correcta del appsettings.json
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-    // Configuramos EF Core para que use SQLite con esa cadena de conexión
+    // Configuramos EF Core para que use SQLite con esa cadena de conexiï¿½n
     options.UseSqlite(connectionString);
 });
 
@@ -103,6 +103,12 @@ builder.Services.AddScoped<ICharacterService, CharacterService>();
 
 var app = builder.Build();
 
+// Initialize the database
+using (var scope = app.Services.CreateScope())
+{
+    DbInitializer.Initialize(scope.ServiceProvider);
+}
+
 // Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
@@ -112,9 +118,9 @@ if (app.Environment.IsDevelopment())
 
 app.UseHttpsRedirection();
 
-app.UseCors(MyAllowSpecificOrigins); // Aplicamos política de CORS.
+app.UseCors(MyAllowSpecificOrigins); // Aplicamos polï¿½tica de CORS.
 
-//Para que las Request pasen por el middleware de autenticación
+//Para que las Request pasen por el middleware de autenticaciï¿½n
 app.UseAuthentication();
 
 app.UseAuthorization();
