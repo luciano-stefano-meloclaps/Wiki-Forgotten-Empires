@@ -52,10 +52,7 @@ export default function EntitiesSection() {
   return (
     <section
       id="entities"
-      className="py-20 relative"
-      style={{
-        background: "linear-gradient(to bottom, #f2ede4, #e8e3da)",
-      }}
+      className="py-20 relative bg-gradient-to-b from-[#f2ede4] to-[#e8e3da] dark:from-[#121212] dark:to-[#1a1917]"
     >
       <div className="absolute top-0 left-0 right-0">
         <KintsugiDivider />
@@ -63,10 +60,10 @@ export default function EntitiesSection() {
 
       <div className="max-w-7xl mx-auto px-4">
         <div className="text-center mb-16">
-          <h2 className="font-serif font-bold text-4xl md:text-5xl text-foreground mb-6">
+          <h2 className="font-serif font-bold text-4xl md:text-5xl text-foreground dark:text-white mb-6">
             Explora Nuestras <span className="golden-shine">Entidades</span>
           </h2>
-          <p className="font-display text-lg md:text-xl text-muted-foreground max-w-3xl mx-auto">
+          <p className="font-display text-lg md:text-xl text-muted-foreground dark:text-[#d1c7b1] max-w-3xl mx-auto">
             Sumérgete en un universo de datos históricos cuidadosamente catalogados. Cada entidad contiene información
             detallada y verificada.
           </p>
@@ -78,28 +75,22 @@ export default function EntitiesSection() {
             return (
               <Card
                 key={entity.title}
-                className="bg-white dark:bg-slate-700 border-3 transition-all duration-300 hover:shadow-xl group cursor-pointer"
-                style={{
-                  borderColor: "#b7992a",
-                  borderWidth: "2px",
-                  borderRadius: "4px", // More square borders for formal look
-                }}
+                className="classical-card group cursor-pointer"
               >
                 <CardHeader className="text-center pb-4">
                   <div className="flex justify-center mb-4">
                     <div
-                      className="p-4 bg-amber-50 dark:bg-amber-950 transition-colors duration-300"
-                      style={{ borderRadius: "4px" }}
+                      className="p-4 bg-amber-50 dark:bg-[#2d2a25] border border-[#af944d]/30 dark:border-[#af944d]/30 transition-colors duration-300 rounded-[2px]"
                     >
                       <IconComponent
-                        className={`h-8 w-8 ${entity.color} group-hover:text-[#b7992a] transition-colors duration-300`}
+                        className={`h-8 w-8 ${entity.color} group-hover:text-[#af944d] dark:group-hover:text-[#e6d28a] transition-colors duration-300`}
                       />
                     </div>
                   </div>
-                  <CardTitle className="font-display text-2xl text-slate-900 dark:text-[#e6d28a] mb-2 group-hover:text-[#b7992a] transition-colors duration-300">
+                  <CardTitle className="font-serif text-2xl text-slate-900 dark:text-[#e6d28a] mb-2 group-hover:text-[#af944d] dark:group-hover:text-[#ffed99] transition-colors duration-300 uppercase tracking-wide">
                     {entity.title}
                   </CardTitle>
-                  <CardDescription className="font-sans text-slate-600 dark:text-slate-300">
+                  <CardDescription className="font-sans text-slate-600 dark:text-[#b8b09d]">
                     {entity.description}
                   </CardDescription>
                 </CardHeader>
@@ -109,14 +100,7 @@ export default function EntitiesSection() {
                     {entity.attributes.map((attr) => (
                       <span
                         key={attr}
-                        className="px-3 py-1.5 text-xs font-sans font-semibold border" // Smaller tags
-                        style={{
-                          backgroundColor: "#f8f5ed",
-                          color: "#bb9e47",
-                          borderColor: "#ebe3cb",
-                          borderWidth: "1px",
-                          borderRadius: "8px", // More rounded tags
-                        }}
+                        className="px-3 py-1.5 text-xs font-serif font-semibold border bg-white/50 text-[#af944d] border-[#af944d]/20 dark:bg-black/20 dark:text-[#e6d28a] dark:border-[#af944d]/20 rounded-[2px]" 
                       >
                         {attr}
                       </span>
@@ -126,12 +110,7 @@ export default function EntitiesSection() {
                   <Button
                     onClick={() => scrollToData(entity.title.toLowerCase())}
                     variant="outline"
-                    className="w-full border-2 text-accent hover:bg-accent/10 hover:text-accent px-6 py-3 text-lg font-medium shadow-lg hover:shadow-accent/25 transition-all duration-300 bg-transparent golden-glow"
-                    style={{
-                      borderColor: "#b7992a",
-                      color: "#b7992a",
-                      borderRadius: "4px", // More square button borders
-                    }}
+                    className="btn-classical-secondary w-full px-6 py-3 text-lg h-14"
                   >
                     Ver Datos
                   </Button>

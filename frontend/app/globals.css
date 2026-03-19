@@ -201,25 +201,15 @@
     }
   }
 
-  /* Golden glow effect for buttons */
+  /* Simplified Monumental shine - no movement, just a subtle surface brightness shift */
   .golden-glow {
     position: relative;
     overflow: hidden;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  .golden-glow::before {
-    content: "";
-    position: absolute;
-    top: 0;
-    left: -100%;
-    width: 100%;
-    height: 100%;
-    background: linear-gradient(90deg, transparent, rgba(230, 210, 138, 0.4), transparent);
-    transition: left 0.6s ease;
-  }
-
-  .golden-glow:hover::before {
-    left: 100%;
+  .golden-glow:hover {
+    box-shadow: inset 0 0 30px rgba(175, 148, 77, 0.1), 0 0 15px rgba(175, 148, 77, 0.2);
   }
 
   /* Enhanced hover effects */
@@ -362,125 +352,119 @@
     background: radial-gradient(ellipse, rgba(230, 210, 138, 0.5) 0%, rgba(244, 232, 166, 0.3) 40%, transparent 70%);
   }
 
-  /* New external golden aura button styling for Explorar API - smaller buttons */
-  .btn-professional-square-aura-external {
-    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
-    border: none;
-    border-radius: 12px; /* Shared border radius for consistency */
-    color: #f9f7f4;
+  /* Classical History "Monumental" Button Styles */
+  .btn-classical-primary {
+    background: #1a1816; /* Deep obsidian background */
+    border: none; /* No border in Light Mode as requested */
+    color: #af944d;
+    font-family: var(--font-serif);
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
     position: relative;
-    overflow: visible; /* Allow external aura */
-    transition: all 0.5s ease; /* Slower transition */
+    z-index: 1;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 2px;
+    cursor: pointer;
   }
 
-  .btn-professional-square-aura-external::before {
+  /* Double border effect for sophistication - Subtler Version */
+  .btn-classical-primary::after {
     content: "";
     position: absolute;
-    inset: -10px; /* External aura positioning around entire contour */
-    background: radial-gradient(ellipse, rgba(230, 210, 138, 0.4) 0%, rgba(191, 161, 74, 0.2) 50%, transparent 80%);
-    border-radius: 22px; /* Matches button radius plus aura offset */
+    inset: 3px;
+    border: 1px solid rgba(175, 148, 77, 0.15); /* More subtle internal border */
     z-index: -1;
-    filter: blur(15px); /* More diffused external golden aura around entire contour */
-    opacity: 0.8;
+    transition: all 0.6s ease;
+    border-radius: 1px;
   }
 
-  .dark .btn-professional-square-aura-external {
-    background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
-    color: #f9f7f4;
-  }
-
-  .dark .btn-professional-square-aura-external::before {
-    background: radial-gradient(ellipse, rgba(230, 210, 138, 0.5) 0%, rgba(244, 232, 166, 0.3) 50%, transparent 80%);
-  }
-
-  /* New external golden aura button styling for Documentación - smaller buttons */
-  .btn-documentation-enhanced-aura-external {
-    border: 2px solid #bfa14a;
-    color: #bfa14a;
-    background: rgba(255, 255, 255, 0.05);
-    border-radius: 12px; /* Shared border radius for consistency */
-    position: relative;
-    overflow: visible; /* Allow external aura */
-    transition: all 0.6s ease; /* Slower transition */
-  }
-
-  .btn-documentation-enhanced-aura-external::before {
-    content: "";
-    position: absolute;
-    inset: -10px; /* External aura positioning around entire contour */
-    background: radial-gradient(ellipse, rgba(230, 210, 138, 0.3) 0%, rgba(191, 161, 74, 0.15) 50%, transparent 80%);
-    border-radius: 22px; /* Matches button radius plus aura offset */
-    z-index: -1;
-    filter: blur(15px); /* More diffused external golden aura around entire contour */
-    opacity: 0.7;
-  }
-
-  .btn-documentation-enhanced-aura-external:hover {
-    background: rgba(191, 161, 74, 0.1);
-    color: #ffffff; /* White shiny text on hover */
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.7), 0 0 40px rgba(244, 232, 166, 0.5);
-    border-color: #e6d28a;
-    transform: scale(1.05);
-  }
-
-  .dark .btn-documentation-enhanced-aura-external {
-    border: 2px solid #e6d28a;
+  .btn-classical-primary:hover {
+    transform: scale(1.02); /* Monumental expansion */
+    border: 1px solid #e6d28a;
     color: #e6d28a;
-    background: rgba(0, 0, 0, 0.05);
+    background: #242220;
+    box-shadow: 0 8px 30px rgba(175, 148, 77, 0.2);
   }
 
-  .dark .btn-documentation-enhanced-aura-external::before {
-    background: radial-gradient(ellipse, rgba(230, 210, 138, 0.4) 0%, rgba(244, 232, 166, 0.2) 50%, transparent 80%);
+  .btn-classical-primary:hover::after {
+    border-color: rgba(230, 210, 138, 0.5);
+    inset: 1px; /* Internal border moves outwards */
   }
 
-  .dark .btn-documentation-enhanced-aura-external:hover {
+  .btn-classical-secondary {
+    background: transparent;
+    border: 1px solid rgba(175, 148, 77, 0.6);
+    color: #af944d;
+    font-family: var(--font-serif);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
+    border-radius: 2px;
+    cursor: pointer;
+    transform: translateY(0);
+  }
+
+  .btn-classical-secondary:hover {
+    transform: translateY(-4px); /* Elegant elevation */
+    background: rgba(175, 148, 77, 0.05);
+    border-color: #af944d;
+    color: #3a3a3a;
+    box-shadow: 0 10px 25px rgba(175, 148, 77, 0.15);
+  }
+
+  /* High contrast variant for Dark Mode - Documentación */
+  .dark .btn-classical-secondary,
+  .dark button.btn-classical-secondary {
+    border-color: #e6d28a !important;
+    color: #e6d28a !important;
+  }
+
+  .dark .btn-classical-secondary:hover,
+  .dark button.btn-classical-secondary:hover {
+    transform: translateY(-4px); /* Ensure elevation carries over to dark mode */
     background: rgba(230, 210, 138, 0.1);
-    color: #ffffff;
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.7), 0 0 40px rgba(244, 232, 166, 0.5);
-    border-color: #f4e8a6;
-    transform: scale(1.05);
+    border-color: #f4e8a6 !important;
+    color: #f4e8a6 !important;
+    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(175, 148, 77, 0.1);
   }
 
-  /* Professional KPI card styling with sacred appearance */
-  .kpi-card {
-    background: rgba(255, 255, 255, 0.15);
+  /* Professional Classical card styling - Monumental Refinement */
+  .classical-card {
+    background: #fdfaf3; /* Parchment background */
     backdrop-filter: blur(6px);
-    border: 2px solid rgba(191, 161, 74, 0.6);
-    border-radius: 12px;
+    border: 1px solid rgba(175, 148, 77, 0.4);
+    border-radius: 2px; /* Sharp monumental corners */
     padding: 24px;
-    text-align: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
+    font-family: var(--font-serif);
+    box-shadow: 0 4px 20px rgba(175, 148, 77, 0.08);
   }
 
-  .kpi-card::before {
+  .classical-card::before {
     content: "";
     position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, rgba(230, 210, 138, 0.1) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
+    inset: 6px;
+    border: 1px solid rgba(175, 148, 77, 0.1); /* Subtle internal detail */
+    pointer-events: none;
   }
 
-  .kpi-card:hover::before {
-    opacity: 1;
-  }
-
-  .kpi-card:hover {
+  .classical-card:hover {
     transform: translateY(-4px);
-    border-color: rgba(230, 210, 138, 0.8);
-    box-shadow: 0 12px 32px rgba(191, 161, 74, 0.3), 0 0 20px rgba(230, 210, 138, 0.4);
+    border-color: #af944d;
+    box-shadow: 0 12px 32px rgba(175, 148, 77, 0.15);
   }
 
-  .dark .kpi-card {
-    background: rgba(0, 0, 0, 0.4);
-    border: 2px solid rgba(230, 210, 138, 0.5);
+  .dark .classical-card {
+    background: #1a1816; /* Obsidian background */
+    border: 1px solid rgba(175, 148, 77, 0.3);
+    box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
 
-  .dark .kpi-card:hover {
-    border-color: rgba(230, 210, 138, 0.9);
-    box-shadow: 0 12px 32px rgba(230, 210, 138, 0.2), 0 0 20px rgba(230, 210, 138, 0.5);
+  .dark .classical-card:hover {
+    border-color: #e6d28a;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
   }
 
   /* Compact KPI card styling for larger containers with smaller numbers */
@@ -681,92 +665,73 @@
     }
   }
 
-  /* New rectangular KPI card styling - completely rectangular, wider than tall, no rounded corners */
+  /* New rectangular KPI card styling - Monumental Classical Refinement */
   .kpi-card-rectangular {
-    background: rgba(255, 255, 255, 0.95);
-    border: 2px solid rgba(191, 161, 74, 0.6);
-    border-radius: 0; /* Completely rectangular - no rounded corners */
+    background: #fdfaf3; /* Parchment background */
+    border: 1px solid rgba(175, 148, 77, 0.4);
+    border-radius: 2px; /* Sharp monumental corners */
     padding: 32px 24px;
     text-align: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    min-height: 120px;
     aspect-ratio: 3 / 2; /* Wider than tall */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
+    font-family: var(--font-serif);
+    box-shadow: 0 4px 15px rgba(175, 148, 77, 0.05);
   }
 
   .kpi-card-rectangular::before {
     content: "";
     position: absolute;
-    inset: 0;
-    background: radial-gradient(circle at center, rgba(230, 210, 138, 0.1) 0%, transparent 70%);
-    opacity: 0;
-    transition: opacity 0.4s ease;
-  }
-
-  .kpi-card-rectangular:hover::before {
-    opacity: 1;
+    inset: 4px;
+    border: 1px solid rgba(175, 148, 77, 0.05); /* Internal subtle detail */
+    pointer-events: none;
   }
 
   .kpi-card-rectangular:hover {
-    transform: translateY(-6px) scale(1.02);
-    border-color: rgba(230, 210, 138, 0.8);
-    box-shadow: 0 16px 40px rgba(191, 161, 74, 0.3), 0 0 24px rgba(230, 210, 138, 0.4);
+    transform: translateY(-4px) scale(1.02);
+    border-color: #af944d;
+    box-shadow: 0 12px 32px rgba(175, 148, 77, 0.15);
   }
 
   .dark .kpi-card-rectangular {
-    background: rgba(0, 0, 0, 0.7);
-    border: 2px solid rgba(230, 210, 138, 0.5);
+    background: #1a1816; /* Obsidian background */
+    border: 1px solid rgba(175, 148, 77, 0.3);
   }
 
   .dark .kpi-card-rectangular:hover {
-    border-color: rgba(230, 210, 138, 0.9);
-    box-shadow: 0 16px 40px rgba(230, 210, 138, 0.2), 0 0 24px rgba(230, 210, 138, 0.5);
+    border-color: #e6d28a;
+    box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
   }
 
-  /* Rectangular sacred number styling - smaller text for formal appearance */
+  /* Rectangular sacred number styling - Monumental Serif */
   .sacred-number-rectangular {
-    font-family: var(--font-decorative);
-    font-size: 2rem; /* Smaller numbers for more formal look */
+    font-family: var(--font-serif);
+    font-size: 2.5rem; 
     font-weight: 700;
-    background: linear-gradient(135deg, #bfa14a 0%, #e6d28a 50%, #f4e8a6 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-size: 200% 200%;
-    animation: golden-shimmer 3s ease-in-out infinite;
-    margin-bottom: 12px;
+    color: #af944d;
+    margin-bottom: 4px;
     transition: all 0.3s ease;
     line-height: 1;
+    letter-spacing: -0.02em;
   }
 
   .kpi-card-rectangular:hover .sacred-number-rectangular {
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 35px rgba(244, 232, 166, 0.6);
+    color: #e6d28a;
     transform: scale(1.05);
   }
 
-  /* Enhanced dark mode shine effect for better visibility */
   .dark .sacred-number-rectangular {
-    background: linear-gradient(135deg, #f4e8a6 0%, #fff8dc 50%, #ffffff 100%);
-    background-clip: text;
-    -webkit-background-clip: text;
-    -webkit-text-fill-color: transparent;
-    background-size: 200% 200%;
-    animation: golden-shimmer 3s ease-in-out infinite;
-  }
-
-  .dark .kpi-card-rectangular:hover .sacred-number-rectangular {
-    text-shadow: 0 0 25px rgba(255, 255, 255, 0.8), 0 0 35px rgba(244, 232, 166, 0.6);
-    transform: scale(1.05);
+    color: #e6d28a;
   }
 
   @media (min-width: 768px) {
     .sacred-number-rectangular {
-      font-size: 2.25rem;
+      font-size: 3rem;
     }
   }
 
