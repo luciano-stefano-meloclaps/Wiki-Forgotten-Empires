@@ -61,7 +61,7 @@ export default function Hero() {
         <div className="flex flex-col sm:flex-row gap-6 justify-center mb-16">
           <Button
             onClick={() => scrollToSection("entities")}
-            className="btn-professional-square-aura-external px-12 py-6 text-lg font-medium shadow-2xl text-primary-foreground min-w-[280px] h-20 hover:shadow-primary/25 transition-all duration-500 active:scale-105 hover:scale-105"
+            className="btn-classical-primary px-12 py-6 text-lg min-w-[280px] h-20"
           >
             <ArrowDown className="mr-2 h-5 w-5" />
             Explorar API
@@ -70,7 +70,7 @@ export default function Hero() {
           <Button
             onClick={openGitHub}
             variant="outline"
-            className="btn-documentation-enhanced-aura-external px-12 py-6 text-lg font-medium transition-all duration-500 bg-transparent min-w-[280px] h-20 golden-glow active:scale-105 hover:scale-105"
+            className="btn-classical-secondary px-12 py-6 text-lg bg-transparent min-w-[280px] h-20"
           >
             <ExternalLink className="mr-2 h-5 w-5" />
             Documentación
