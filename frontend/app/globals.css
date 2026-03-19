@@ -6,64 +6,120 @@
 @custom-variant dark (&:is(.dark *));
 
 :root {
-  /* Forgotten Empires Luxury Vintage + Kintsugi Marble Theme */
-  --background: #f9f7f4; /* Marble background */
-  --foreground: #1a1a1a; /* Primary text */
-  --card: rgba(255, 255, 255, 0.15); /* Glassmorphism */
-  --card-foreground: #1a1a1a;
-  --popover: rgba(255, 255, 255, 0.9);
-  --popover-foreground: #1a1a1a;
-  --primary: #4b2e2b; /* Burgundy */
-  --primary-foreground: #f9f7f4;
-  --secondary: #2f4f4f; /* Dark slate gray */
-  --secondary-foreground: #f9f7f4;
-  --muted: #d6d0c4; /* Marble veins */
-  --muted-foreground: #5c5c5c; /* Secondary text */
-  --accent: #bfa14a; /* Kintsugi gold base */
-  --accent-foreground: #1a1a1a;
+  /* ═══════════════════════════════════════════════════════════
+     Forgotten Empires — Marble + Kintsugi Gold Design System
+     Inspired by: 8K marble relief sculpture, museum lighting,
+     24K gold kintsugi veins over centuries-worn stone.
+  ═══════════════════════════════════════════════════════════ */
+
+  /* Surfaces */
+  --background: #f9f7f2;
+  /* Warm marble — base canvas */
+  --foreground: #1a1816;
+  /* Deep charcoal — primary text */
+  --card: #fdfaf3;
+  /* Parchment — elevated surface */
+  --card-foreground: #1a1816;
+  --popover: #fdfaf3;
+  --popover-foreground: #1a1816;
+
+  /* Brand */
+  --primary: #2a2520;
+  /* Marble charcoal — replaces burgundy */
+  --primary-foreground: #f0ebe0;
+  --secondary: #3d3830;
+  /* Warm dark stone */
+  --secondary-foreground: #f0ebe0;
+
+  /* Kintsugi Gold */
+  --accent: #af944d;
+  /* Aged gold — primary accent */
+  --accent-foreground: #1a1816;
+  --accent-bright: #e6d28a;
+  /* Bright gold — hover/emphasis */
+  --accent-dark: #8a7339;
+  /* Darker gold for light mode contrast */
+  --accent-subtle: rgba(175, 148, 77, 0.12);
+  /* Ambient gold tint */
+
+  /* Muted */
+  --muted: #e2ddd4;
+  /* Marble vein tone */
+  --muted-foreground: #5c5650;
+  /* Warm grey — secondary text */
+
+  /* System */
   --destructive: #dc2626;
   --destructive-foreground: #ffffff;
-  --border: rgba(191, 161, 74, 0.4); /* Gold border */
+  --border: rgba(175, 148, 77, 0.35);
+  /* Aged gold border */
   --input: rgba(255, 255, 255, 0.8);
-  --ring: rgba(191, 161, 74, 0.6);
-  --chart-1: #bfa14a;
-  --chart-2: #4b2e2b;
-  --chart-3: #2f4f4f;
-  --chart-4: #d6d0c4;
-  --chart-5: #5c5c5c;
-  --radius: 0.75rem;
-  --sidebar: rgba(255, 255, 255, 0.15);
-  --sidebar-foreground: #1a1a1a;
-  --sidebar-primary: #bfa14a;
-  --sidebar-primary-foreground: #1a1a1a;
-  --sidebar-accent: #4b2e2b;
-  --sidebar-accent-foreground: #f9f7f4;
-  --sidebar-border: rgba(191, 161, 74, 0.4);
-  --sidebar-ring: rgba(191, 161, 74, 0.6);
+  --ring: rgba(175, 148, 77, 0.5);
+
+  /* Geometry — Monumental sharpness throughout */
+  --radius: 2px;
+
+  /* Charts */
+  --chart-1: #af944d;
+  --chart-2: #2a2520;
+  --chart-3: #5c5650;
+  --chart-4: #e2ddd4;
+  --chart-5: #c8a85c;
+
+  /* Sidebar */
+  --sidebar: #fdfaf3;
+  --sidebar-foreground: #1a1816;
+  --sidebar-primary: #af944d;
+  --sidebar-primary-foreground: #1a1816;
+  --sidebar-accent: #2a2520;
+  --sidebar-accent-foreground: #f0ebe0;
+  --sidebar-border: rgba(175, 148, 77, 0.35);
+  --sidebar-ring: rgba(175, 148, 77, 0.5);
 
   /* Kintsugi gradient */
-  --kintsugi-gradient: linear-gradient(135deg, #bfa14a 0%, #e6d28a 100%);
+  --kintsugi-gradient: linear-gradient(135deg, #af944d 0%, #e6d28a 50%, #f4e8a6 100%);
 }
 
 .dark {
-  /* Enhanced dark theme colors for better contrast and luxury feel */
-  --background: #0f0f0f; /* Deeper black for luxury feel */
-  --foreground: #f9f7f4;
-  --card: rgba(0, 0, 0, 0.4); /* Darker glassmorphism */
-  --card-foreground: #f9f7f4;
-  --popover: rgba(0, 0, 0, 0.9);
-  --popover-foreground: #f9f7f4;
-  --primary: #e6d28a; /* Brighter gold for dark mode */
-  --primary-foreground: #1a1a1a;
-  --secondary: #2f4f4f;
-  --secondary-foreground: #f9f7f4;
-  --muted: #3a3a3a; /* Darker muted */
-  --muted-foreground: #d6d0c4;
-  --accent: #e6d28a; /* Brighter accent gold */
-  --accent-foreground: #0f0f0f; /* Changed from #1a1a1a to #0f0f0f for better contrast against bright gold background */
+  /* ═══════════════════════════════════
+     Dark Mode — Deep Obsidian + Bright Kintsugi Gold
+  ═══════════════════════════════════ */
+
+  /* Surfaces */
+  --background: #100f0d;
+  /* Deep obsidian */
+  --foreground: #f0ebe0;
+  /* Warm cream — high contrast */
+  --card: #1a1816;
+  /* Dark obsidian card */
+  --card-foreground: #f0ebe0;
+  --popover: #1a1816;
+  --popover-foreground: #f0ebe0;
+
+  /* Brand */
+  --primary: #1a1816;
+  /* Dark obsidian */
+  --primary-foreground: #f0ebe0;
+  --secondary: #2d2a25;
+  --secondary-foreground: #f0ebe0;
+
+  /* Kintsugi Gold — Brighter for dark contrast */
+  --accent: #e6d28a;
+  /* Bright gold */
+  --accent-foreground: #100f0d;
+  --accent-bright: #d1b200;
+  /* Highlight gold */
+  --accent-subtle: rgba(230, 210, 138, 0.10);
+
+  /* Muted */
+  --muted: #2d2a25;
+  --muted-foreground: #b8b09d;
+  /* Warm grey */
+
+  /* System */
   --destructive: #ef4444;
   --destructive-foreground: #ffffff;
-  --border: rgba(230, 210, 138, 0.3); /* Brighter gold border */
+  --border: rgba(175, 148, 77, 0.3);
   --input: rgba(255, 255, 255, 0.05);
   --ring: rgba(230, 210, 138, 0.5);
 }
@@ -115,6 +171,7 @@
   * {
     @apply border-border outline-ring/50;
   }
+
   body {
     @apply bg-background text-foreground font-sans;
     /* Added smooth transition for theme changes */
@@ -137,19 +194,22 @@
       radial-gradient(circle at 40% 40%, rgba(230, 210, 138, 0.1) 0%, transparent 50%), var(--background);
   }
 
-  /* Glassmorphism effect */
+  /* Marble Glass — Parchment / Obsidian layers */
   .glass {
-    background: rgba(255, 255, 255, 0.15);
-    backdrop-filter: blur(6px);
-    border: 1px solid rgba(191, 161, 74, 0.4);
-    /* Added transition for smooth theme switching */
+    background: rgba(253, 250, 243, 0.82);
+    /* Parchment tint */
+    backdrop-filter: blur(12px);
+    -webkit-backdrop-filter: blur(12px);
+    border: 1px solid rgba(175, 148, 77, 0.35);
+    border-radius: 2px;
+    /* Monumental — no soft rounding */
     transition: background 0.3s ease, border-color 0.3s ease;
   }
 
-  /* Dark mode glassmorphism variation */
+  /* Dark mode — Obsidian glass */
   .dark .glass {
-    background: rgba(0, 0, 0, 0.4);
-    border: 1px solid rgba(230, 210, 138, 0.3);
+    background: rgba(26, 24, 22, 0.85);
+    border: 1px solid rgba(175, 148, 77, 0.25);
   }
 
   /* Typography classes */
@@ -192,10 +252,12 @@
 
   /* Golden shimmer animation */
   @keyframes golden-shimmer {
+
     0%,
     100% {
       background-position: 0% 50%;
     }
+
     50% {
       background-position: 100% 50%;
     }
@@ -229,10 +291,12 @@
   }
 
   @keyframes float {
+
     0%,
     100% {
       transform: translateY(0px);
     }
+
     50% {
       transform: translateY(-10px);
     }
@@ -247,6 +311,7 @@
     from {
       box-shadow: 0 0 20px rgba(191, 161, 74, 0.4);
     }
+
     to {
       box-shadow: 0 0 30px rgba(230, 210, 138, 0.6);
     }
@@ -309,8 +374,10 @@
   /* Professional square button styling - more rounded */
   .btn-professional-square {
     background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
-    border: none; /* No border */
-    border-radius: 12px; /* More rounded */
+    border: none;
+    /* No border */
+    border-radius: 12px;
+    /* More rounded */
     color: #f9f7f4;
     position: relative;
     overflow: hidden;
@@ -325,11 +392,13 @@
   .btn-professional-square-aura {
     background: linear-gradient(135deg, #4b2e2b 0%, #5d3a36 100%);
     border: none;
-    border-radius: 16px; /* More rounded buttons */
+    border-radius: 16px;
+    /* More rounded buttons */
     color: #f9f7f4;
     position: relative;
     overflow: hidden;
-    box-shadow: 0 0 30px rgba(230, 210, 138, 0.3); /* Golden aura effect */
+    box-shadow: 0 0 30px rgba(230, 210, 138, 0.3);
+    /* Golden aura effect */
   }
 
   .btn-professional-square-aura::before {
@@ -339,7 +408,8 @@
     background: linear-gradient(45deg, rgba(230, 210, 138, 0.4), rgba(191, 161, 74, 0.2), rgba(230, 210, 138, 0.4));
     border-radius: inherit;
     z-index: -1;
-    filter: blur(8px); /* Diffused golden aura */
+    filter: blur(8px);
+    /* Diffused golden aura */
   }
 
   .dark .btn-professional-square-aura {
@@ -352,102 +422,94 @@
     background: radial-gradient(ellipse, rgba(230, 210, 138, 0.5) 0%, rgba(244, 232, 166, 0.3) 40%, transparent 70%);
   }
 
-  /* Classical History "Monumental" Button Styles */
+  /* Classical History "Monumental" Button Styles — Refactored Senior Architecture */
   .btn-classical-primary {
-    background: #1a1816; /* Deep obsidian background */
-    border: none; /* No border in Light Mode as requested */
-    color: #af944d;
-    font-family: var(--font-serif);
-    letter-spacing: 0.15em;
-    text-transform: uppercase;
     position: relative;
-    z-index: 1;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 2px;
+    z-index: 10;
     cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.15em;
+    font-family: var(--font-serif);
+    background: var(--foreground);
+    color: var(--accent);
+    border: none;
+    border-radius: var(--radius);
+    transition: all 0.3s cubic-bezier(0.4, 0, 0.2, 1);
   }
 
-  /* Double border effect for sophistication - Subtler Version */
-  .btn-classical-primary::after {
-    content: "";
-    position: absolute;
-    inset: 3px;
-    border: 1px solid rgba(175, 148, 77, 0.15); /* More subtle internal border */
-    z-index: -1;
-    transition: all 0.6s ease;
-    border-radius: 1px;
-  }
+
+
+
 
   .btn-classical-primary:hover {
-    transform: scale(1.02); /* Monumental expansion */
-    border: 1px solid #e6d28a;
-    color: #e6d28a;
-    background: #242220;
-    box-shadow: 0 8px 30px rgba(175, 148, 77, 0.2);
+    transform: scale(1.02);
+    background: var(--primary);
+    color: var(--accent-bright);
+    box-shadow: 0 8px 30px var(--accent-subtle);
   }
 
-  .btn-classical-primary:hover::after {
-    border-color: rgba(230, 210, 138, 0.5);
-    inset: 1px; /* Internal border moves outwards */
+
+
+
+
+  .dark .btn-classical-primary {
+    background: var(--primary);
+    color: var(--accent);
   }
+
 
   .btn-classical-secondary {
-    background: transparent;
-    border: 1px solid rgba(175, 148, 77, 0.6);
-    color: #af944d;
-    font-family: var(--font-serif);
-    letter-spacing: 0.1em;
-    text-transform: uppercase;
-    transition: all 0.6s cubic-bezier(0.4, 0, 0.2, 1);
-    border-radius: 2px;
+    position: relative;
     cursor: pointer;
-    transform: translateY(0);
+    text-transform: uppercase;
+    letter-spacing: 0.1em;
+    font-family: var(--font-serif);
+    transition: all 0.3s ease;
+    background: transparent;
+    border: 1px solid var(--accent);
+    color: var(--accent);
+    border-radius: var(--radius);
   }
 
   .btn-classical-secondary:hover {
-    transform: translateY(-4px); /* Elegant elevation */
-    background: rgba(175, 148, 77, 0.05);
-    border-color: #af944d;
-    color: #3a3a3a;
-    box-shadow: 0 10px 25px rgba(175, 148, 77, 0.15);
+    transform: translateY(-4px);
+    background: var(--accent-subtle) !important;
+    color: var(--accent-bright) !important;
+    box-shadow: 0 10px 25px var(--accent-subtle);
   }
 
-  /* High contrast variant for Dark Mode - Documentación */
-  .dark .btn-classical-secondary,
-  .dark button.btn-classical-secondary {
-    border-color: #e6d28a !important;
-    color: #e6d28a !important;
-  }
-
-  .dark .btn-classical-secondary:hover,
-  .dark button.btn-classical-secondary:hover {
-    transform: translateY(-4px); /* Ensure elevation carries over to dark mode */
-    background: rgba(230, 210, 138, 0.1);
-    border-color: #f4e8a6 !important;
-    color: #f4e8a6 !important;
-    box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5), 0 0 15px rgba(175, 148, 77, 0.1);
-  }
 
   /* Professional Classical card styling - Monumental Refinement */
   .classical-card {
-    background: #fdfaf3; /* Parchment background */
+    background: #fdfaf3;
+    /* Parchment background */
     backdrop-filter: blur(6px);
     border: 1px solid rgba(175, 148, 77, 0.4);
-    border-radius: 2px; /* Sharp monumental corners */
+    border-radius: 2px;
+    /* Sharp monumental corners */
     padding: 24px;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     font-family: var(--font-serif);
-    box-shadow: 0 4px 20px rgba(175, 148, 77, 0.08);
+    box-shadow: 0 6px 25px rgba(175, 148, 77, 0.06);
   }
 
-  .classical-card::before {
+  /* Internal architectural detail for the card */
+  .classical-card::after {
     content: "";
     position: absolute;
-    inset: 6px;
-    border: 1px solid rgba(175, 148, 77, 0.1); /* Subtle internal detail */
+    inset: 8px;
+    border: 1px solid rgba(175, 148, 77, 0.12);
+    /* Subtle internal detail */
     pointer-events: none;
+    z-index: 1;
+    transition: all 0.4s ease;
+  }
+
+  .classical-card:hover::after {
+    border-color: rgba(175, 148, 77, 0.25);
+    inset: 6px;
   }
 
   .classical-card:hover {
@@ -457,7 +519,8 @@
   }
 
   .dark .classical-card {
-    background: #1a1816; /* Obsidian background */
+    background: #1a1816;
+    /* Obsidian background */
     border: 1px solid rgba(175, 148, 77, 0.3);
     box-shadow: 0 4px 20px rgba(0, 0, 0, 0.4);
   }
@@ -553,19 +616,22 @@
   .kpi-card-square {
     background: rgba(255, 255, 255, 0.95);
     border: 2px solid rgba(191, 161, 74, 0.6);
-    border-radius: 0; /* Completely square - no rounded corners */
+    border-radius: 0;
+    /* Completely square - no rounded corners */
     padding: 40px 24px;
     text-align: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
     min-height: 140px;
-    aspect-ratio: 1; /* Perfect square */
+    aspect-ratio: 1;
+    /* Perfect square */
     display: flex;
     flex-direction: column;
     justify-content: center;
     align-items: center;
   }
+
 
   .kpi-card-square::before {
     content: "";
@@ -599,7 +665,8 @@
   /* Square sacred number styling - smaller text for formal appearance */
   .sacred-number-square {
     font-family: var(--font-decorative);
-    font-size: 2.25rem; /* Smaller than before for more formal look */
+    font-size: 2.25rem;
+    /* Smaller than before for more formal look */
     font-weight: 700;
     background: linear-gradient(135deg, #bfa14a 0%, #e6d28a 50%, #f4e8a6 100%);
     background-clip: text;
@@ -667,15 +734,18 @@
 
   /* New rectangular KPI card styling - Monumental Classical Refinement */
   .kpi-card-rectangular {
-    background: #fdfaf3; /* Parchment background */
+    background: #fdfaf3;
+    /* Parchment background */
     border: 1px solid rgba(175, 148, 77, 0.4);
-    border-radius: 2px; /* Sharp monumental corners */
+    border-radius: 2px;
+    /* Sharp monumental corners */
     padding: 32px 24px;
     text-align: center;
     transition: all 0.4s cubic-bezier(0.4, 0, 0.2, 1);
     position: relative;
     overflow: hidden;
-    aspect-ratio: 3 / 2; /* Wider than tall */
+    aspect-ratio: 3 / 2;
+    /* Wider than tall */
     display: flex;
     flex-direction: column;
     justify-content: center;
@@ -688,7 +758,8 @@
     content: "";
     position: absolute;
     inset: 4px;
-    border: 1px solid rgba(175, 148, 77, 0.05); /* Internal subtle detail */
+    border: 1px solid rgba(175, 148, 77, 0.05);
+    /* Internal subtle detail */
     pointer-events: none;
   }
 
@@ -699,7 +770,8 @@
   }
 
   .dark .kpi-card-rectangular {
-    background: #1a1816; /* Obsidian background */
+    background: #1a1816;
+    /* Obsidian background */
     border: 1px solid rgba(175, 148, 77, 0.3);
   }
 
@@ -708,30 +780,50 @@
     box-shadow: 0 12px 32px rgba(0, 0, 0, 0.6);
   }
 
+  /* Rectangular KPI card - used in Heritage and Hero */
+  .kpi-card-rectangular {
+    background: #fdfaf3;
+    border: 1px solid rgba(175, 148, 77, 0.35);
+    border-radius: 2px;
+    padding: 1rem;
+    transition: all 0.4s ease;
+    box-shadow: 0 4px 15px rgba(175, 148, 77, 0.05);
+  }
+
+  .kpi-card-rectangular:hover {
+    border-color: #af944d;
+    box-shadow: 0 8px 25px rgba(175, 148, 77, 0.12);
+    transform: translateY(-2px);
+  }
+
   /* Rectangular sacred number styling - Monumental Serif */
   .sacred-number-rectangular {
     font-family: var(--font-serif);
-    font-size: 2.5rem; 
+    font-size: 2.25rem;
     font-weight: 700;
-    color: #af944d;
-    margin-bottom: 4px;
-    transition: all 0.3s ease;
-    line-height: 1;
+    color: #1a1816;
     letter-spacing: -0.02em;
+    margin-bottom: 2px;
+    line-height: 1;
+    transition: all 0.3s ease;
   }
 
-  .kpi-card-rectangular:hover .sacred-number-rectangular {
-    color: #e6d28a;
-    transform: scale(1.05);
+  .dark .kpi-card-rectangular {
+    background: #1a1816;
+    border-color: rgba(175, 148, 77, 0.25);
   }
 
   .dark .sacred-number-rectangular {
     color: #e6d28a;
   }
 
+  .kpi-card-rectangular:hover .sacred-number-rectangular {
+    transform: scale(1.05);
+  }
+
   @media (min-width: 768px) {
     .sacred-number-rectangular {
-      font-size: 3rem;
+      font-size: 2.75rem;
     }
   }
 
@@ -740,18 +832,24 @@
     border: 2px solid #bfa14a;
     color: #bfa14a;
     background: rgba(255, 255, 255, 0.9);
-    box-shadow: 0 6px 16px rgba(191, 161, 74, 0.25); /* Light shadow */
-    transition: all 0.5s ease; /* Slower transition */
-    border-radius: 12px; /* More rounded */
+    box-shadow: 0 6px 16px rgba(191, 161, 74, 0.25);
+    /* Light shadow */
+    transition: all 0.5s ease;
+    /* Slower transition */
+    border-radius: 12px;
+    /* More rounded */
   }
 
   .btn-documentation-enhanced:hover {
     background: linear-gradient(135deg, rgba(191, 161, 74, 0.2), rgba(230, 210, 138, 0.3));
-    color: #ffffff; /* White shiny text on hover */
-    text-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 25px rgba(255, 255, 255, 0.6); /* Enhanced shiny effect */
+    color: #ffffff;
+    /* White shiny text on hover */
+    text-shadow: 0 0 15px rgba(255, 255, 255, 0.9), 0 0 25px rgba(255, 255, 255, 0.6);
+    /* Enhanced shiny effect */
     border-color: #e6d28a;
     box-shadow: 0 10px 24px rgba(191, 161, 74, 0.35);
-    transform: scale(1.05); /* Hover scale effect */
+    transform: scale(1.05);
+    /* Hover scale effect */
   }
 
   .dark .btn-documentation-enhanced {
@@ -774,10 +872,14 @@
   .btn-documentation-enhanced-aura {
     border: 2px solid #bfa14a;
     color: #bfa14a;
-    background: rgba(255, 255, 255, 0.05); /* More transparent background */
-    box-shadow: 0 6px 16px rgba(191, 161, 74, 0.25), 0 0 30px rgba(230, 210, 138, 0.2); /* Added golden aura */
-    transition: all 0.6s ease; /* Even slower transition */
-    border-radius: 16px; /* More rounded */
+    background: rgba(255, 255, 255, 0.05);
+    /* More transparent background */
+    box-shadow: 0 6px 16px rgba(191, 161, 74, 0.25), 0 0 30px rgba(230, 210, 138, 0.2);
+    /* Added golden aura */
+    transition: all 0.6s ease;
+    /* Even slower transition */
+    border-radius: 16px;
+    /* More rounded */
     position: relative;
     overflow: hidden;
   }
@@ -789,13 +891,17 @@
     background: linear-gradient(45deg, rgba(230, 210, 138, 0.3), rgba(191, 161, 74, 0.1), rgba(230, 210, 138, 0.3));
     border-radius: inherit;
     z-index: -1;
-    filter: blur(10px); /* Very diffused golden aura */
+    filter: blur(10px);
+    /* Very diffused golden aura */
   }
 
   .btn-documentation-enhanced-aura:hover {
-    background: rgba(191, 161, 74, 0.1); /* More subtle hover background */
-    color: #ffffff; /* White shiny text on hover */
-    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.7), 0 0 40px rgba(244, 232, 166, 0.5); /* Enhanced shiny effect */
+    background: rgba(191, 161, 74, 0.1);
+    /* More subtle hover background */
+    color: #ffffff;
+    /* White shiny text on hover */
+    text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.7), 0 0 40px rgba(244, 232, 166, 0.5);
+    /* Enhanced shiny effect */
     border-color: #e6d28a;
     box-shadow: 0 10px 24px rgba(191, 161, 74, 0.35), 0 0 40px rgba(230, 210, 138, 0.4);
     transform: scale(1.05);
@@ -804,7 +910,8 @@
   .dark .btn-documentation-enhanced-aura {
     border: 2px solid #e6d28a;
     color: #e6d28a;
-    background: rgba(0, 0, 0, 0.05); /* More transparent background */
+    background: rgba(0, 0, 0, 0.05);
+    /* More transparent background */
     box-shadow: 0 6px 16px rgba(230, 210, 138, 0.25), 0 0 30px rgba(230, 210, 138, 0.3);
   }
 
