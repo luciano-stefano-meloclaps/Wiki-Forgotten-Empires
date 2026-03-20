@@ -22,6 +22,16 @@ export default function Header() {
     window.open("https://github.com/luciano-meloclaps/Wiki-Forgotten-Empires.git", "_blank")
   }
 
+  const navLinkClass =
+    "font-sans text-sm uppercase tracking-widest text-foreground hover:text-[#af944d] dark:hover:text-[#e6d28a] transition-colors duration-300 relative group"
+
+  const navItems = [
+    { id: "hero", label: "Inicio" },
+    { id: "entities", label: "Entidades" },
+    { id: "heritage", label: "Herencia" },
+    { id: "data", label: "Datos" },
+  ]
+
   return (
     <header className="fixed top-0 left-0 right-0 z-50 h-[90px] glass">
       <div className="max-w-7xl mx-auto px-4 h-full flex items-center justify-between">
@@ -32,40 +42,18 @@ export default function Header() {
 
         {/* Desktop Navigation */}
         <nav className="hidden md:flex items-center space-x-8">
-          <button
-            onClick={() => scrollToSection("hero")}
-            className="font-sans text-foreground hover:text-accent transition-all duration-300 luxury-hover relative group"
-          >
-            Inicio
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-accent to-accent/60 transition-all duration-300 group-hover:w-full"></span>
-          </button>
-          <button
-            onClick={() => scrollToSection("entities")}
-            className="font-sans text-foreground hover:text-accent transition-all duration-300 luxury-hover relative group"
-          >
-            Entidades
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-accent to-accent/60 transition-all duration-300 group-hover:w-full"></span>
-          </button>
-          <button
-            onClick={() => scrollToSection("heritage")}
-            className="font-sans text-foreground hover:text-accent transition-all duration-300 luxury-hover relative group"
-          >
-            Herencia
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-accent to-accent/60 transition-all duration-300 group-hover:w-full"></span>
-          </button>
-          <button
-            onClick={() => scrollToSection("data")}
-            className="font-sans text-foreground hover:text-accent transition-all duration-300 luxury-hover relative group"
-          >
-            Datos
-            <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-gradient-to-r from-accent to-accent/60 transition-all duration-300 group-hover:w-full"></span>
-          </button>
+          {navItems.map(({ id, label }) => (
+            <button key={id} onClick={() => scrollToSection(id)} className={navLinkClass}>
+              {label}
+              <span className="absolute -bottom-1 left-0 w-0 h-px bg-gradient-to-r from-[#af944d] to-[#e6d28a] transition-all duration-300 group-hover:w-full" />
+            </button>
+          ))}
 
           <Button
             variant="ghost"
             size="icon"
             onClick={openGitHub}
-            className="text-foreground hover:text-accent hover:bg-accent/10 transition-all duration-300 luxury-hover w-10 h-10"
+            className="text-foreground hover:text-[#af944d] dark:hover:text-[#e6d28a] hover:bg-[#af944d]/10 transition-all duration-300 w-10 h-10"
             aria-label="Ver repositorio en GitHub"
           >
             <Github className="h-5 w-5" />
@@ -75,7 +63,7 @@ export default function Header() {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            className="text-foreground hover:text-accent hover:bg-accent/10 transition-all duration-300 luxury-hover w-10 h-10"
+            className="text-foreground hover:text-[#af944d] dark:hover:text-[#e6d28a] hover:bg-[#af944d]/10 transition-all duration-300 w-10 h-10"
             aria-label={theme === "light" ? "Cambiar a tema oscuro" : "Cambiar a tema claro"}
           >
             {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
@@ -88,7 +76,7 @@ export default function Header() {
             variant="ghost"
             size="icon"
             onClick={openGitHub}
-            className="text-foreground hover:text-accent hover:bg-accent/10 transition-all duration-300 w-10 h-10"
+            className="text-foreground hover:text-[#af944d] dark:hover:text-[#e6d28a] transition-all duration-300 w-10 h-10"
             aria-label="Ver repositorio en GitHub"
           >
             <Github className="h-5 w-5" />
@@ -97,7 +85,7 @@ export default function Header() {
             variant="ghost"
             size="icon"
             onClick={toggleTheme}
-            className="text-foreground hover:text-accent hover:bg-accent/10 transition-all duration-300 w-10 h-10"
+            className="text-foreground hover:text-[#af944d] dark:hover:text-[#e6d28a] transition-all duration-300 w-10 h-10"
             aria-label={theme === "light" ? "Cambiar a tema oscuro" : "Cambiar a tema claro"}
           >
             {theme === "light" ? <Moon className="h-5 w-5" /> : <Sun className="h-5 w-5" />}
@@ -110,32 +98,17 @@ export default function Header() {
 
       {/* Mobile Navigation */}
       {isMenuOpen && (
-        <div className="md:hidden glass border-t border-border">
+        <div className="md:hidden glass border-t border-[#af944d]/20">
           <nav className="flex flex-col space-y-4 p-4">
-            <button
-              onClick={() => scrollToSection("hero")}
-              className="font-sans text-foreground hover:text-accent transition-colors duration-300 text-left"
-            >
-              Inicio
-            </button>
-            <button
-              onClick={() => scrollToSection("entities")}
-              className="font-sans text-foreground hover:text-accent transition-colors duration-300 text-left"
-            >
-              Entidades
-            </button>
-            <button
-              onClick={() => scrollToSection("heritage")}
-              className="font-sans text-foreground hover:text-accent transition-colors duration-300 text-left"
-            >
-              Herencia
-            </button>
-            <button
-              onClick={() => scrollToSection("data")}
-              className="font-sans text-foreground hover:text-accent transition-colors duration-300 text-left"
-            >
-              Datos
-            </button>
+            {navItems.map(({ id, label }) => (
+              <button
+                key={id}
+                onClick={() => scrollToSection(id)}
+                className="font-sans text-sm uppercase tracking-widest text-foreground hover:text-[#af944d] dark:hover:text-[#e6d28a] transition-colors duration-300 text-left"
+              >
+                {label}
+              </button>
+            ))}
           </nav>
         </div>
       )}
