@@ -25,6 +25,7 @@ builder.Services.AddCors(options =>
                       });
 });
 builder.Services.AddControllers();
+builder.Services.AddHealthChecks();
 
 builder.Services.AddEndpointsApiExplorer();
 
@@ -116,7 +117,8 @@ if (app.Environment.IsDevelopment())
     app.UseSwaggerUI();
 }
 
-app.UseHttpsRedirection();
+// HTTP-only in Docker — HTTPS is handled by a reverse proxy upstream
+// app.UseHttpsRedirection();
 
 app.UseCors(MyAllowSpecificOrigins); // Aplicamos pol�tica de CORS.
 
@@ -126,5 +128,6 @@ app.UseAuthentication();
 app.UseAuthorization();
 
 app.MapControllers();
+app.MapHealthChecks("/health");
 
 app.Run();
