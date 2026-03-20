@@ -8,13 +8,18 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ASPNETCORE_HTTP_PORTS=8080
       - ConnectionStrings__DefaultConnection=Data Source=/app/database/wiki-forgotten-empires.db
     volumes:
       - ./database:/app/database
     networks:
       - for-empires-net
     restart: unless-stopped
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/health || exit 1"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 15s
 
   web:
     build:
@@ -31,12 +36,10 @@ services:
     networks:
       - for-empires-net
     depends_on:
-      - api
+      api:
+        condition: service_healthy
     restart: unless-stopped
 
 networks:
   for-empires-net:
     driver: bridge
-
-volumes:
-  db_data:
