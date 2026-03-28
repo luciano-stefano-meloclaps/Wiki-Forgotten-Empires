@@ -119,43 +119,90 @@ export default function DataSection() {
           <div className="text-center text-red-500 py-10">{error}</div>
         ) : (
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {data.map((item) => (
-              <Link href={`/${selectedEntity}/${item.id}`} key={item.id}>
-                <Card
-                  className="bg-white dark:bg-slate-800 rounded-2xl border-2 hover:shadow-xl transition-all duration-300 h-full overflow-hidden"
-                  style={{ borderColor: "#b7992a" }}
-                >
-                  <CardHeader>
-                    <CardTitle className="font-display text-xl text-slate-900 dark:text-slate-100 mb-2">
-                      {item.name}
-                    </CardTitle>
-                    <CardDescription className="font-sans text-slate-600 dark:text-slate-300 line-clamp-3">
-                      {item.description}
-                    </CardDescription>
-                  </CardHeader>
-                  <CardContent>
-                    <div className="space-y-3">
-                      {Object.entries(item.attributes).map(([key, value]) => (
-                        <div key={key} className="flex justify-between items-start gap-4">
-                          <span
-                            className="font-sans font-semibold capitalize px-3 py-1 text-xs border whitespace-nowrap"
-                            style={{
-                              backgroundColor: "#f8f5ed", color: "#bb9e47",
-                              borderColor: "#ebe3cb", borderWidth: "1px", borderRadius: "8px",
-                            }}
-                          >
-                            {key}:
-                          </span>
-                          <span className="font-sans text-slate-700 dark:text-slate-300 text-right text-sm line-clamp-2">
-                            {value}
-                          </span>
+            {data.map((item) => {
+              const hasVisionGeneral = "Visión General" in item.attributes;
+              const { "Visión General": visionGeneral, ...otherAttributes } = item.attributes;
+              
+              let mainText = item.description;
+              let tagsArray: string[] = [];
+
+              if (hasVisionGeneral) {
+                // Si existe Visión General, toma protagonismo como texto principal
+                mainText = (visionGeneral && visionGeneral !== "N/A") 
+                  ? visionGeneral 
+                  : "Descubre más detalles sobre este elemento histórico accediendo a su archivo completo.";
+                
+                // Convertimos el summary (la vieja description) en tags visuales separados
+                tagsArray = (item.description || "")
+                  .split(/\s*[-–—,;|]\s*/)
+                  .map(t => t.trim())
+                  .filter(t => t.length > 2 && !t.toLowerCase().includes("available") && !t.toLowerCase().includes("n/a"));
+              }
+
+              return (
+                <Link href={`/${selectedEntity}/${item.id}`} key={item.id}>
+                  <Card className="classical-card group h-full flex flex-col justify-between">
+                    <CardHeader className="pb-4 relative z-10 px-0 pt-0">
+                      <div className="flex justify-between items-start gap-4 mb-3">
+                        <CardTitle className="font-serif text-2xl tracking-wide text-slate-900 dark:text-[#e6d28a] group-hover:text-[#af944d] dark:group-hover:text-[#ffed99] transition-colors duration-300 uppercase leading-none">
+                          {item.name}
+                        </CardTitle>
+                        
+                        {/* El atributo principal (ej. Período, Fecha) se eleva a la esquina superior como insignia elegante */}
+                        {Object.entries(otherAttributes).slice(0, 1).map(([key, value]) => (
+                          <div key={key} className="text-right shrink-0 bg-[#af944d]/5 dark:bg-[#e6d28a]/5 px-2.5 py-1.5 rounded-[2px] border border-[#af944d]/20 transition-colors group-hover:bg-[#af944d]/10">
+                            <span className="block font-serif text-[9px] font-bold tracking-widest uppercase text-[#af944d] dark:text-[#c4a962] leading-tight mb-0.5">
+                              {key}
+                            </span>
+                            <span className="block font-sans text-[11px] font-semibold text-slate-800 dark:text-[#e6d28a] leading-tight">
+                              {value}
+                            </span>
+                          </div>
+                        ))}
+                      </div>
+                      
+                      <div className="w-12 h-[1px] bg-[#af944d]/40 mb-3" />
+                      
+                      <CardDescription className="font-sans text-sm leading-relaxed text-slate-600 dark:text-[#b8b09d] line-clamp-3">
+                        {mainText}
+                      </CardDescription>
+                    </CardHeader>
+                    
+                    <CardContent className="relative z-10 px-0 pb-0 mt-auto flex flex-col gap-4">
+                      {/* Atributos secundarios (si existen más de 1 atributo original) */}
+                      {Object.entries(otherAttributes).slice(1).length > 0 && (
+                        <div className="space-y-2.5 pt-4 border-t border-[#af944d]/10">
+                          {Object.entries(otherAttributes).slice(1).map(([key, value]) => (
+                            <div key={key} className="flex justify-between items-center gap-4 group/row">
+                              <span className="font-serif text-[11px] font-bold tracking-widest uppercase text-[#af944d] dark:text-[#c4a962]">
+                                {key}
+                              </span>
+                              <span className="font-sans text-right text-sm text-slate-700 dark:text-[#d1c7b1] font-medium transition-colors group-hover/row:text-slate-900 dark:group-hover/row:text-white line-clamp-1">
+                                {value || "N/A"}
+                              </span>
+                            </div>
+                          ))}
                         </div>
-                      ))}
-                    </div>
-                  </CardContent>
-                </Card>
-              </Link>
-            ))}
+                      )}
+
+                      {/* Sección de Tags (Conceptos Clave, Tipos, etc.) anclada al fondo de la card */}
+                      {tagsArray.length > 0 && (
+                        <div className={`flex flex-wrap gap-1.5 ${Object.entries(otherAttributes).slice(1).length === 0 ? 'pt-4 border-t border-[#af944d]/10' : ''}`}>
+                          {tagsArray.map((tag, idx) => (
+                            <span 
+                              key={idx} 
+                              className="font-sans text-[10px] font-semibold tracking-wide uppercase px-2 py-1 bg-white/50 dark:bg-black/20 text-[#8a7339] dark:text-[#c4a962] border border-[#af944d]/20 rounded-[2px]"
+                            >
+                              {tag}
+                            </span>
+                          ))}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                </Link>
+              );
+            })}
           </div>
         )}
       </div>
