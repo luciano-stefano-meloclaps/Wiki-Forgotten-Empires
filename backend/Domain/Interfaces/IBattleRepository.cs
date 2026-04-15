@@ -8,6 +8,8 @@ namespace Domain.Interfaces
 
         Task<Battle?> GetByIdBattle(int id, CancellationToken ct);
 
+        Task<Battle?> GetBattleByName(string name, CancellationToken ct);
+
         Task<Battle> CreateBattle(Battle battle, CancellationToken ct);
 
         Task UpdateBattle(Battle battle, CancellationToken ct);

@@ -8,6 +8,8 @@ namespace Domain.Interfaces
 
         Task<Character?> GetCharacterById(int id, CancellationToken ct);
 
+        Task<Character?> GetCharacterByName(string name, CancellationToken ct);
+
         // Se elimina FindByIdAsync para simplificar.
 
         // Se añade el método para crear que faltaba.

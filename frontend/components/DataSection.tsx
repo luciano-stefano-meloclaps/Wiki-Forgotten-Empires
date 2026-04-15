@@ -140,11 +140,11 @@ export default function DataSection() {
               }
 
               return (
-                <Link href={`/${selectedEntity}/${item.id}`} key={item.id}>
-                  <Card className="classical-card group h-full flex flex-col justify-between">
+                <Link href={`/${selectedEntity}/${item.id}`} key={item.id} className="transition-transform duration-300">
+                  <Card className="classical-card group h-full flex flex-col justify-between vt-card-container">
                     <CardHeader className="pb-4 relative z-10 px-0 pt-0">
                       <div className="flex justify-between items-start gap-4 mb-3">
-                        <CardTitle className="font-serif text-2xl tracking-wide text-slate-900 dark:text-[#e6d28a] group-hover:text-[#af944d] dark:group-hover:text-[#ffed99] transition-colors duration-300 uppercase leading-none">
+                        <CardTitle className="font-serif text-2xl tracking-wide text-slate-900 dark:text-[#e6d28a] group-hover:text-[#af944d] dark:group-hover:text-[#ffed99] transition-colors duration-300 uppercase leading-none vt-entity-title">
                           {item.name}
                         </CardTitle>
                         

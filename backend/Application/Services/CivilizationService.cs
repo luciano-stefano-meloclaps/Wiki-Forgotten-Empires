@@ -1,17 +1,24 @@
 ﻿using Application.Interfaces;
 using Application.Models.Dto;
 using Application.Models.Request;
+using Domain.Entities;
 using Domain.Interfaces;
+using Domain.Relations;
+using ITerritoryRepository = Domain.Interfaces.ITerritoryRepository;
 
 namespace Application.Services
 {
     public class CivilizationService : ICivilizationService
     {
         private readonly ICivilizationRepository _civilizationRepository;
+        private readonly ITerritoryRepository _territoryRepository;
 
-        public CivilizationService(ICivilizationRepository civilizationRepository)
+        public CivilizationService(
+            ICivilizationRepository civilizationRepository,
+            ITerritoryRepository territoryRepository)
         {
             _civilizationRepository = civilizationRepository;
+            _territoryRepository = territoryRepository;
         }
 
         public async Task<IEnumerable<CivilizationGalleryDto>> GetAllCivilization(CancellationToken ct)
@@ -31,6 +38,8 @@ namespace Application.Services
         {
             var civilization = CreateCivilizationRequest.ToEntity(request);
             await _civilizationRepository.CreateCivilization(civilization, ct);
+            await SetTerritoriesAsync(civilization, request.Territories, ct);
+            await _civilizationRepository.UpdateCivilization(civilization, ct);
             return CivilizationDetailDto.ToDto(civilization);
         }
 
@@ -42,6 +51,10 @@ namespace Application.Services
                 return false;
             }
             UpdateCivilizationRequest.ApplyToEntity(request, civilization);
+            if (request.Territories is not null)
+            {
+                await SetTerritoriesAsync(civilization, request.Territories, ct);
+            }
             await _civilizationRepository.UpdateCivilization(civilization, ct);
             return true;
         }
@@ -57,6 +70,42 @@ namespace Application.Services
             await _civilizationRepository.DeleteCivilization(civilization, ct);
 
             return true;
+        }
+
+        private async Task SetTerritoriesAsync(Civilization civilization, List<string>? territories, CancellationToken ct)
+        {
+            if (territories is null)
+            {
+                return;
+            }
+
+            var normalizedNames = territories
+                .Where(name => !string.IsNullOrWhiteSpace(name))
+                .Select(name => name.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
+                .ToList();
+
+            var existingTerritories = await _territoryRepository.GetTerritoriesByNames(normalizedNames, ct);
+            var existingMap = existingTerritories
+                .ToDictionary(t => t.Name, StringComparer.OrdinalIgnoreCase);
+
+            civilization.Territories.Clear();
+
+            foreach (var territoryName in normalizedNames)
+            {
+                if (!existingMap.TryGetValue(territoryName, out var territory))
+                {
+                    territory = await _territoryRepository.CreateTerritory(new Territory { Name = territoryName }, ct);
+                }
+
+                civilization.Territories.Add(new CivilizationTerritory
+                {
+                    Civilization = civilization,
+                    CivilizationId = civilization.Id,
+                    Territory = territory,
+                    TerritoryId = territory.Id
+                });
+            }
         }
     }
 }

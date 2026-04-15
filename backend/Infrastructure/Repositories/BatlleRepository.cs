@@ -38,6 +38,17 @@ namespace Infrastructure.Repositories
             return battle;
         }
 
+        public async Task<Battle?> GetBattleByName(string name, CancellationToken ct)
+        {
+            return await _context.Battles
+                .Include(b => b.Age)
+                .Include(b => b.Character)
+                    .ThenInclude(cb => cb.Character)
+                .Include(b => b.Civilization)
+                    .ThenInclude(cb => cb.Civilization)
+                .FirstOrDefaultAsync(b => b.Name.ToLower() == name.ToLower(), ct);
+        }
+
         public async Task UpdateBattle(Battle battle, CancellationToken ct)
         {
             await _context.SaveChangesAsync(ct);
