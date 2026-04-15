@@ -11,6 +11,10 @@ namespace Application.Models.Request
         public string Name { get; set; } = default!;
 
         public string? Date { get; set; }
+        public string? Summary { get; set; }
+        public string? DetailedDescription { get; set; }
+        public TerritoryType? Territory { get; set; }
+        public int? AgeId { get; set; }
 
         public static Battle ToEntity(BattleCreateRequest dto)
         {
@@ -18,6 +22,10 @@ namespace Application.Models.Request
             {
                 Name = dto.Name,
                 Date = dto.Date,
+                Summary = dto.Summary,
+                DetailedDescription = dto.DetailedDescription,
+                Territory = dto.Territory,
+                AgeId = dto.AgeId,
             };
         }
     }

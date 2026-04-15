@@ -8,6 +8,8 @@ namespace Domain.Interfaces
 
         Task<Age?> GetAgeDetailById(int id, CancellationToken ct);
 
+        Task<Age?> GetAgeByName(string name, CancellationToken ct);
+
         Task<Age?> GetTrackedAgeById(int id, CancellationToken ct);
 
         //Task<Battle?> GetBattleById(int battleId, CancellationToken ct);

@@ -8,6 +8,8 @@ namespace Domain.Interfaces
 
         Task<Civilization?> GetCivizlizationById(int id, CancellationToken ct);
 
+        Task<Civilization?> GetCivilizationByName(string name, CancellationToken ct);
+
         Task<Civilization> CreateCivilization(Civilization civilization, CancellationToken ct);
 
         Task UpdateCivilization(Civilization civilization, CancellationToken ct);

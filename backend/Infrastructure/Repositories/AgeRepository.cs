@@ -44,6 +44,12 @@ namespace Infrastructure.Repositories
             return age;
         }
 
+        public async Task<Age?> GetAgeByName(string name, CancellationToken ct)
+        {
+            return await _context.Ages
+                .FirstOrDefaultAsync(a => a.Name.ToLower() == name.ToLower(), ct);
+        }
+
         public async Task UpdateAge(Age age, CancellationToken ct)
         {
             await _context.SaveChangesAsync(ct);

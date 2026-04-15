@@ -12,9 +12,7 @@ namespace Application.Models.Dto
 
         public string? ImageUrl { get; set; }
 
-        // public string? Summary { get; set; } //No se si se va a terminar utiliznaodo
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public TerritoryType Territory { get; set; }
+        public List<string> Territories { get; set; } = new();
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public CivilizationState State { get; set; }
@@ -26,8 +24,7 @@ namespace Application.Models.Dto
                 Id = civilization.Id,
                 Name = civilization.Name,
                 ImageUrl = civilization.ImageUrl,
-                //Summary = civilization.Summary,
-                Territory = civilization.Territory,
+                Territories = civilization.Territories.Select(ct => ct.Territory.Name).ToList(),
                 State = civilization.State
             };
         }
@@ -40,9 +37,7 @@ namespace Application.Models.Dto
         public string? Overview { get; set; }
         public string? ImageUrl { get; set; }
 
-        //Enums
-        [JsonConverter(typeof(JsonStringEnumConverter))]
-        public TerritoryType? Territory { get; set; }
+        public List<string> Territories { get; set; } = new();
 
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public CivilizationState? State { get; set; }
@@ -61,7 +56,7 @@ namespace Application.Models.Dto
                 Name = civilization.Name,
                 Overview = civilization.Overview,
                 ImageUrl = civilization.ImageUrl,
-                Territory = civilization.Territory,
+                Territories = civilization.Territories.Select(ct => ct.Territory.Name).ToList(),
                 State = civilization.State,
                 //Relaciones
                 Characters = civilization.Characters.Select(c => CharacterDtoCard.ToDto(c)).ToList(),

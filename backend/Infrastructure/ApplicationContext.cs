@@ -12,6 +12,7 @@ namespace Infrastructure
         public DbSet<Civilization> Civilizations { get; set; }
         public DbSet<Battle> Battles { get; set; }
         public DbSet<Age> Ages { get; set; }
+        public DbSet<Territory> Territories { get; set; }
 
         //Tablas de relaciones N->N
         public DbSet<CharacterBattle> CharacterBattles { get; set; }
@@ -19,6 +20,8 @@ namespace Infrastructure
         public DbSet<CivilizationBattle> CivilizationBattles { get; set; }
 
         public DbSet<CivilizationAge> CivilizationAges { get; set; }
+
+        public DbSet<CivilizationTerritory> CivilizationTerritories { get; set; }
 
         public ApplicationContext(DbContextOptions<ApplicationContext> options) : base(options)
         {
@@ -109,6 +112,22 @@ namespace Infrastructure
                 .HasOne(ca => ca.Age)
                 .WithMany(Age => Age.Civilizations)
                 .HasForeignKey(ca => ca.AgeId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            //Civilization N--N Territory
+            modelBuilder.Entity<CivilizationTerritory>()
+                .HasKey(ct => new { ct.CivilizationId, ct.TerritoryId });
+
+            modelBuilder.Entity<CivilizationTerritory>()
+                .HasOne(ct => ct.Civilization)
+                .WithMany(c => c.Territories)
+                .HasForeignKey(ct => ct.CivilizationId)
+                .OnDelete(DeleteBehavior.Cascade);
+
+            modelBuilder.Entity<CivilizationTerritory>()
+                .HasOne(ct => ct.Territory)
+                .WithMany(t => t.Civilizations)
+                .HasForeignKey(ct => ct.TerritoryId)
                 .OnDelete(DeleteBehavior.Cascade);
         }
     }

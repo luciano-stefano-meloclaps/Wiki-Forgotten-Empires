@@ -18,9 +18,6 @@ namespace Domain.Entities
         public string? Overview { get; set; }
         public string? ImageUrl { get; set; }
 
-        //Enums
-        public TerritoryType Territory { get; set; }
-
         public CivilizationState State { get; set; }
 
         //Relacion 1->N
@@ -30,6 +27,10 @@ namespace Domain.Entities
         //Relacion N->N con Age
         public ICollection<CivilizationAge> Ages { get; set; }
             = new List<CivilizationAge>();
+
+        //Relacion N->N con Territory
+        public ICollection<CivilizationTerritory> Territories { get; set; }
+            = new List<CivilizationTerritory>();
 
         //Relaciones N->N con Battle
         public ICollection<CivilizationBattle> Battles { get; set; }
