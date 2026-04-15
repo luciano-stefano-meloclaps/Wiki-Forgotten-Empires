@@ -37,6 +37,16 @@ namespace Infrastructure.Repositories
             return character;
         }
 
+        public async Task<Character?> GetCharacterByName(string name, CancellationToken ct)
+        {
+            return await _context.Characters
+                .Include(c => c.Civilization)
+                .Include(c => c.Age)
+                .Include(c => c.Battles)
+                    .ThenInclude(cb => cb.Battle)
+                .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower(), ct);
+        }
+
         public async Task UpdateCharacter(Character character, CancellationToken ct)
         {
             await _context.SaveChangesAsync(ct);

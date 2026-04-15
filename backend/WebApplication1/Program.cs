@@ -3,12 +3,14 @@ using Application.Interfaces;
 using Application.Services;
 using Domain.Interfaces;
 using ForgottenEmpires.Application.Services;
+using ForgottenEmpire.HostedServices;
 using Infrastructure;
 using Infrastructure.Repositories;
 using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
+using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -28,6 +30,12 @@ builder.Services.AddControllers();
 builder.Services.AddHealthChecks();
 
 builder.Services.AddEndpointsApiExplorer();
+
+builder.Services.AddHttpClient<INotionSyncService, NotionSyncService>(client =>
+{
+    client.BaseAddress = new Uri("https://api.notion.com/v1/");
+    client.DefaultRequestHeaders.Accept.Add(new MediaTypeWithQualityHeaderValue("application/json"));
+});
 
 //  Swagger => A�adir un header de nombre Authorize con el siguiente valor Bearer
 builder.Services.AddSwaggerGen(setupAction =>
@@ -70,7 +78,7 @@ builder.Services.AddAuthentication("Bearer") //Especifica que el esquema de aute
             ValidAudience = builder.Configuration["Authentication:Audience"],
             IssuerSigningKey = new SymmetricSecurityKey(
                 Encoding.ASCII.GetBytes(
-                    builder.Configuration["Authentication:SecretForKey"]
+                    builder.Configuration["Authentication:SecretForKey"] ?? string.Empty
                 )
             )
         };
@@ -93,6 +101,7 @@ builder.Services.AddScoped<IAgeService, AgeService>();
 //Civilization
 builder.Services.AddScoped<ICivilizationRepository, CivilizationRepository>();
 builder.Services.AddScoped<ICivilizationService, CivilizationService>();
+builder.Services.AddScoped<ITerritoryRepository, TerritoryRepository>();
 
 // Battle
 builder.Services.AddScoped<IBattleRepository, BatlleRepository>();
@@ -101,6 +110,8 @@ builder.Services.AddScoped<IBattleService, BattleService>();
 //Character
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
+
+builder.Services.AddHostedService<NotionSyncHostedService>();
 
 var app = builder.Build();
 

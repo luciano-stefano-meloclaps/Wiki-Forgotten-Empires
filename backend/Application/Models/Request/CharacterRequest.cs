@@ -13,15 +13,25 @@ namespace Application.Models.Request
         public string? HonorificTitle { get; set; }
         public string? LifePeriod { get; set; }
         public RoleCharacter? Role { get; set; }
+        public string? Description { get; set; }
+        public string? ImageUrl { get; set; }
+        public string? Dynasty { get; set; }
+        public int? CivilizationId { get; set; }
+        public int? AgeId { get; set; }
 
         public static Character ToEntity(CharacterCreateRequest req)
         {
             return new Character
             {
                 Name = req.Name,
+                Description = req.Description,
                 HonorificTitle = req.HonorificTitle,
                 LifePeriod = req.LifePeriod,
+                Dynasty = req.Dynasty,
+                ImageUrl = req.ImageUrl,
                 Role = req.Role,
+                CivilizationId = req.CivilizationId,
+                AgeId = req.AgeId,
             };
         }
     }

@@ -915,11 +915,40 @@
     box-shadow: 0 6px 16px rgba(230, 210, 138, 0.25), 0 0 30px rgba(230, 210, 138, 0.3);
   }
 
-  .dark .btn-documentation-enhanced-aura:hover {
+    .dark .btn-documentation-enhanced-aura:hover {
     background: rgba(230, 210, 138, 0.1);
     color: #ffffff;
     text-shadow: 0 0 20px rgba(255, 255, 255, 0.9), 0 0 30px rgba(255, 255, 255, 0.7), 0 0 40px rgba(244, 232, 166, 0.5);
     border-color: #f4e8a6;
     transform: scale(1.05);
+  }
+
+  /* View Transitions API - Premium Morphing Names */
+  .vt-entity-title {
+    view-transition-name: entity-title;
+  }
+
+  .vt-card-container {
+    view-transition-name: card-container;
+  }
+
+  /* Detail View Specific Layouts */
+  .detail-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 3rem;
+  }
+
+  @media (min-width: 1024px) {
+    .detail-grid {
+      grid-template-columns: 1.5fr 1fr;
+    }
+  }
+
+  .historical-divider {
+    height: 1px;
+    background: linear-gradient(90deg, transparent, var(--accent), transparent);
+    margin: 2rem 0;
+    opacity: 0.5;
   }
 }

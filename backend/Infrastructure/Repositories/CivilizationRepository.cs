@@ -12,6 +12,8 @@ namespace Infrastructure.Repositories
         {
             return await _context.Civilizations
                 .AsNoTracking()
+                .Include(c => c.Territories)
+                    .ThenInclude(ct => ct.Territory)
                 .ToListAsync(ct);
         }
 
@@ -21,8 +23,14 @@ namespace Infrastructure.Repositories
                 .Include(c => c.Characters).ThenInclude(ch => ch.Age) //Ver mas de los pj
                 .Include(c => c.Ages).ThenInclude(ca => ca.Age) //Tabla intermedia
                 .Include(c => c.Battles).ThenInclude(cb => cb.Battle) //Tabla intermedia
-                .AsNoTracking()
+                .Include(c => c.Territories).ThenInclude(ct => ct.Territory)
                 .FirstOrDefaultAsync(c => c.Id == id, ct);
+        }
+
+        public async Task<Civilization?> GetCivilizationByName(string name, CancellationToken ct)
+        {
+            return await _context.Civilizations
+                .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower(), ct);
         }
 
         public async Task<Civilization> CreateCivilization(Civilization civilization, CancellationToken ct)
