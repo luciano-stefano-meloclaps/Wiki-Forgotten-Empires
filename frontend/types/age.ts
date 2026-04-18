@@ -5,8 +5,26 @@ export interface Age {
   date: string | null;
   overview: string | null;
 }
+
+export interface Character {
+  id: number;
+  name: string;
+  description?: string;
+  honorificTitle?: string;
+  lifePeriod?: string;
+  role?: string;
+}
+
+export interface Battle {
+  id: number;
+  name: string;
+  date?: string;
+  summary?: string;
+  territory?: string;
+}
+
 export interface AgeDetail extends Age {
-  characters: any[]; // TODO: Reemplazar 'any' con el tipo 'Character' cuando se defina
-  battles: any[];    // TODO: Reemplazar 'any' con el tipo 'Battle' cuando se defina
-  civilizations: any[]; // TODO: Reemplazar 'any' con el tipo 'CivilizationAge' cuando se defina
+  characters: Character[];
+  battles: Battle[];
+  civilizations: { id: number; name: string }[];
 }

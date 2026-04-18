@@ -96,10 +96,8 @@ namespace Application.Services
                 case "battle":
                     await SyncBattleAsync(page, name, ct);
                     break;
-                case "civilization":
-                    await SyncCivilizationAsync(page, name, ct);
-                    break;
                 default:
+                    // Default to Civilization if no specific type is found or explicitly marked as "civilization"
                     await SyncCivilizationAsync(page, name, ct);
                     break;
             }
@@ -184,57 +182,54 @@ namespace Application.Services
 
         private async Task SyncCivilizationAsync(NotionPage page, string name, CancellationToken ct)
         {
-            var summary = page.GetText("Summary") ?? page.GetText("Description") ?? page.GetText("Overview");
-            var overview = page.GetText("Overview") ?? page.GetText("Description") ?? page.GetText("Summary");
-            var imageUrl = page.GetText("ImageUrl");
-            var state = ParseEnum<CivilizationState>(page.GetSelect("State"))
-                ?? ParseEnum<CivilizationState>(page.GetSelect("Estado"));
+            var summary = page.GetText("Summary") ?? page.GetText("Description");
+            var overview = page.GetText("Overview") ?? summary;
+            var imageUrl = page.GetText("ImageUrl") ?? page.GetText("Image");
+            var state = ParseEnum<CivilizationState>(page.GetSelect("State"));
+            var territories = page.GetMultiSelect("Regions");
+            var ageRelationIds = page.GetRelationIds("Ages");
+            var battleRelationIds = page.GetRelationIds("Battles");
+            var characterRelationIds = page.GetRelationIds("Characters");
 
-            var territoryNames = page.GetMultiSelect("Regiones")
-                .Concat(page.GetMultiSelect("Regions"))
-                .Where(name => !string.IsNullOrWhiteSpace(name))
-                .Distinct(StringComparer.OrdinalIgnoreCase)
-                .ToList();
-
-            var characterPageIds = page.GetRelationIds("Personajes").Concat(page.GetRelationIds("Characters")).ToList();
-            var agePageIds = page.GetRelationIds("Periodos").Concat(page.GetRelationIds("Ages")).ToList();
-            var battlePageIds = page.GetRelationIds("Batallas").Concat(page.GetRelationIds("Battles")).ToList();
-
-            var existing = await _civilizationRepository.GetCivilizationByName(name, ct);
-            Civilization civilization;
+            var existing = await _civilizationRepository.GetCivilizationByName(name.Trim(), ct);
             if (existing is null)
             {
-                civilization = new Civilization
+                var civilization = new Civilization
                 {
-                    Name = name,
+                    Name = name.Trim(),
                     Summary = summary,
                     Overview = overview,
                     ImageUrl = imageUrl,
                     State = state ?? CivilizationState.None
                 };
+
                 await _civilizationRepository.CreateCivilization(civilization, ct);
-            }
-            else
-            {
-                civilization = existing;
-                if (!string.IsNullOrWhiteSpace(summary)) civilization.Summary = summary;
-                if (!string.IsNullOrWhiteSpace(overview)) civilization.Overview = overview;
-                if (!string.IsNullOrWhiteSpace(imageUrl)) civilization.ImageUrl = imageUrl;
-                if (state is not null) civilization.State = state.Value;
+                await SetCivilizationTerritoriesAsync(civilization, territories, ct);
+                await SetCivilizationAgeRelationsAsync(civilization, ageRelationIds, ct);
+                await SetCivilizationBattleRelationsAsync(civilization, battleRelationIds, ct);
+                await SetCivilizationCharacterRelationsAsync(civilization, characterRelationIds, ct);
+                await _civilizationRepository.UpdateCivilization(civilization, ct);
+                return;
             }
 
-            await SetCivilizationTerritoriesAsync(civilization, territoryNames, ct);
-            await SetCivilizationCharacterRelationsAsync(civilization, characterPageIds, ct);
-            await SetCivilizationAgeRelationsAsync(civilization, agePageIds, ct);
-            await SetCivilizationBattleRelationsAsync(civilization, battlePageIds, ct);
+            existing.Name = name.Trim();
+            existing.Summary = summary;
+            existing.Overview = overview;
+            existing.ImageUrl = imageUrl;
+            existing.State = state ?? CivilizationState.None;
 
-            await _civilizationRepository.UpdateCivilization(civilization, ct);
+            await SetCivilizationTerritoriesAsync(existing, territories, ct);
+            await SetCivilizationAgeRelationsAsync(existing, ageRelationIds, ct);
+            await SetCivilizationBattleRelationsAsync(existing, battleRelationIds, ct);
+            await SetCivilizationCharacterRelationsAsync(existing, characterRelationIds, ct);
+            await _civilizationRepository.UpdateCivilization(existing, ct);
         }
 
         private async Task SetCivilizationTerritoriesAsync(Civilization civilization, List<string> territoryNames, CancellationToken ct)
         {
             if (!territoryNames.Any())
             {
+                civilization.Territories.Clear();
                 return;
             }
 
@@ -262,6 +257,17 @@ namespace Application.Services
 
         private async Task SetCivilizationCharacterRelationsAsync(Civilization civilization, List<string> pageIds, CancellationToken ct)
         {
+            if (!pageIds.Any())
+            {
+                foreach (var character in civilization.Characters)
+                {
+                    character.CivilizationId = null;
+                }
+
+                civilization.Characters.Clear();
+                return;
+            }
+
             foreach (var relationId in pageIds.Distinct())
             {
                 var characterPage = await FetchNotionPageAsync(relationId, ct);
@@ -297,6 +303,12 @@ namespace Application.Services
 
         private async Task SetCivilizationAgeRelationsAsync(Civilization civilization, List<string> pageIds, CancellationToken ct)
         {
+            if (!pageIds.Any())
+            {
+                civilization.Ages.Clear();
+                return;
+            }
+
             foreach (var relationId in pageIds.Distinct())
             {
                 var agePage = await FetchNotionPageAsync(relationId, ct);
@@ -335,6 +347,12 @@ namespace Application.Services
 
         private async Task SetCivilizationBattleRelationsAsync(Civilization civilization, List<string> pageIds, CancellationToken ct)
         {
+            if (!pageIds.Any())
+            {
+                civilization.Battles.Clear();
+                return;
+            }
+
             foreach (var relationId in pageIds.Distinct())
             {
                 var battlePage = await FetchNotionPageAsync(relationId, ct);
@@ -461,14 +479,22 @@ namespace Application.Services
 
             public string? GetTitle(string propertyName)
             {
-                if (!Properties.TryGetValue(propertyName, out var property))
-                {
-                    return null;
-                }
-
-                if (property.TryGetProperty("title", out var titleElement))
+                if (TryGetProperty(propertyName, out var property) && property.TryGetProperty("title", out var titleElement))
                 {
                     return GetPlainTextFromRichText(titleElement);
+                }
+
+                // Fallback to any title property, useful when the database title column is renamed (for example "Nombre").
+                foreach (var candidate in Properties.Values)
+                {
+                    if (candidate.TryGetProperty("title", out var candidateTitleElement))
+                    {
+                        var title = GetPlainTextFromRichText(candidateTitleElement);
+                        if (!string.IsNullOrWhiteSpace(title))
+                        {
+                            return title;
+                        }
+                    }
                 }
 
                 return null;
@@ -476,7 +502,7 @@ namespace Application.Services
 
             public string? GetText(string propertyName)
             {
-                if (!Properties.TryGetValue(propertyName, out var property))
+                if (!TryGetProperty(propertyName, out var property))
                 {
                     return null;
                 }
@@ -501,7 +527,7 @@ namespace Application.Services
 
             public string? GetSelect(string propertyName)
             {
-                if (!Properties.TryGetValue(propertyName, out var property))
+                if (!TryGetProperty(propertyName, out var property))
                 {
                     return null;
                 }
@@ -512,6 +538,26 @@ namespace Application.Services
                 }
 
                 return null;
+            }
+
+            private bool TryGetProperty(string propertyName, out JsonElement property)
+            {
+                if (Properties.TryGetValue(propertyName, out property))
+                {
+                    return true;
+                }
+
+                foreach (var kv in Properties)
+                {
+                    if (string.Equals(kv.Key, propertyName, StringComparison.OrdinalIgnoreCase))
+                    {
+                        property = kv.Value;
+                        return true;
+                    }
+                }
+
+                property = default;
+                return false;
             }
 
             public List<string> GetMultiSelect(string propertyName)
@@ -526,7 +572,7 @@ namespace Application.Services
                     return new List<string>();
                 }
 
-                var results = new List<string>();
+                var  results = new List<string>();
                 foreach (var item in multiSelectElement.EnumerateArray())
                 {
                     if (item.TryGetProperty("name", out var nameElement) && nameElement.ValueKind == JsonValueKind.String)

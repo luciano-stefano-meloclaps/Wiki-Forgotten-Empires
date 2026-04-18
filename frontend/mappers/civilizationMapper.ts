@@ -7,14 +7,22 @@ interface DataItem {
   attributes: Record<string, string>;
 }
 
-export const mapCivilizationsToDataItems = (civilizations: Civilization[]): DataItem[] => {
-  return civilizations.map(civ => ({
+export const mapCivilizationsToDataItems = (
+  civilizations: Civilization[],
+): DataItem[] => {
+  return civilizations.map((civ) => ({
     id: civ.id.toString(),
     name: civ.name,
-    description: civ.summary || "No description available.",
+    description: civ.summary || civ.overview || civ.name,
     attributes: {
-      "Visión General": civ.overview || "N/A",
-      Territorio: civ.territory?.toString() || "N/A",
+      Estado: civ.state || "Desconocido",
+      Territorios:
+        civ.territories && civ.territories.length > 0
+          ? civ.territories.join(", ")
+          : "N/A",
+      "Eras Asociadas": civ.agesCount?.toString() ?? "0",
+      Personajes: civ.charactersCount?.toString() ?? "0",
+      Batallas: civ.battlesCount?.toString() ?? "0",
     },
   }));
 };
