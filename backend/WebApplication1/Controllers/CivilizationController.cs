@@ -36,7 +36,7 @@ namespace ForgottenEmpire.Controllers
         {
             try
             {
-                var civilizationDetail = await _civilizationService.GetCivizlizationById(id, ct);
+                var civilizationDetail = await _civilizationService.GetCivilizationById(id, ct);
 
                 if (civilizationDetail == null)
                 {

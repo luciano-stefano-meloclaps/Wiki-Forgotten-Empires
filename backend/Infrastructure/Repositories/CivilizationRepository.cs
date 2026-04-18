@@ -14,6 +14,9 @@ namespace Infrastructure.Repositories
                 .AsNoTracking()
                 .Include(c => c.Territories)
                     .ThenInclude(ct => ct.Territory)
+                .Include(c => c.Ages)
+                .Include(c => c.Characters)
+                .Include(c => c.Battles)
                 .ToListAsync(ct);
         }
 
@@ -29,8 +32,14 @@ namespace Infrastructure.Repositories
 
         public async Task<Civilization?> GetCivilizationByName(string name, CancellationToken ct)
         {
+            var normalizedName = name.Trim().ToLower();
             return await _context.Civilizations
-                .FirstOrDefaultAsync(c => c.Name.ToLower() == name.ToLower(), ct);
+                .Include(c => c.Characters)
+                .Include(c => c.Ages)
+                .Include(c => c.Battles)
+                .Include(c => c.Territories)
+                    .ThenInclude(ct => ct.Territory)
+                .FirstOrDefaultAsync(c => c.Name.ToLower() == normalizedName, ct);
         }
 
         public async Task<Civilization> CreateCivilization(Civilization civilization, CancellationToken ct)

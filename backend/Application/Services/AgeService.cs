@@ -64,41 +64,6 @@ public class AgeService : IAgeService
         return true;
     }
 
-    /*public async Task<(bool Success, string ErrorMessage)> UpdateAgeRelations(int ageId, UpdateAgeRelationsDto dto, CancellationToken ct)
-    {
-        //Validar que exista la Age
-        var ageExists = await _context.Ages.AnyAsync(a => a.Id == ageId, ct);
-        if (!ageExists)
-        {
-            return (false, $"No se encontró la Age con id {ageId}.");
-        }
-
-        //Buscar y asignar las rel Battle
-        if (dto.BattleId.HasValue)
-        {
-            var battle = await _context.Battles.FindAsync(dto.BattleId.Value);
-            if (battle is null) return (false, $"No se encontró la Battle con id {dto.BattleId.Value}.");
-
-            battle.AgeId = ageId; // Asigna la relación
-            _context.Update(battle);
-        }
-
-        //Buscar y asignar las rel Character
-        if (dto.CharacterId.HasValue)
-        {
-            private var character = await _context.Characters.FindAsync(dto.CharacterId.Value);
-
-            if (character is null) return (false, $"No se encontró el Character con id {dto.CharacterId.Value}.");
-
-            character.AgeId = ageId; // Asigna la relación
-            _context.Update(character);
-        }
-
-        await _context.SaveChangesAsync(ct);
-
-        return (true, string.Empty);
-    }*/
-
     /////// METODOS para VINCULAR relaciones por ID unico \\\\\\
 
     public async Task<(bool Success, string ErrorMessage)> UpdateAgeBattleRelation(int ageId, int battleId, CancellationToken ct)
@@ -155,40 +120,6 @@ public class AgeService : IAgeService
 
         return (true, string.Empty);
     }
-
-    /* public async Task<(bool Success, string ErrorMessage)> RemoveAgeRelationsAsync(int ageId, UpdateAgeRelationsDto dto, CancellationToken ct)
-     {
-         // Validar que exista la Age
-         var ageExists = await _context.Ages.AnyAsync(a => a.Id == ageId, ct);
-         if (!ageExists)
-         {
-             return (false, $"No se encontró la Age con id {ageId}.");
-         }
-
-         // Buscart y desvincular Character
-         if (dto.CharacterId.HasValue)
-         {
-             var character = await _context.Characters.FindAsync(dto.CharacterId.Value);
-
-             if (character is null) return (false, $"No se encontró el Character con id {dto.CharacterId.Value}.");
-
-             character.AgeId = null; // Elimina la relación
-             _context.Update(character);
-         }
-
-         // Buscart y desvincular Battle
-         if (dto.BattleId.HasValue)
-         {
-             var battle = await _context.Battles.FindAsync(dto.BattleId.Value);
-             if (battle is null) return (false, $"No se encontró la Battle con id {dto.BattleId.Value}.");
-
-             battle.AgeId = null; // Elimina la relación
-             _context.Update(battle);
-         }
-
-         await _context.SaveChangesAsync(ct);
-         return (true, string.Empty);
-     }*/
 
     /////// METODOS para DESVINCULAR relaciones por ID unico \\\\\\
     public async Task<(bool Success, string ErrorMessage)> RemoveAgeBattleRelation(int ageId, int battleId, CancellationToken ct)

@@ -6,6 +6,8 @@
 [Bb]in/
 [Oo]bj/
 Properties/launchSettings.json
+appsettings.Development.json
+appsettings.Production.json
 
 # Node.js / Next.js
 node_modules/

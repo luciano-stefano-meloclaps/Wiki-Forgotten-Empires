@@ -24,7 +24,8 @@ namespace ForgottenEmpire.Controllers
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                var error = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(500, new { error, stackTrace = ex.ToString() });
             }
         }
 

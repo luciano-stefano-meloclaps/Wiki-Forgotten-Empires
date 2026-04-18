@@ -2,6 +2,7 @@ using System;
 using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
+using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
 using Microsoft.Extensions.Logging;
 
@@ -11,15 +12,25 @@ namespace Infrastructure
     {
         public static void Initialize(IServiceProvider serviceProvider)
         {
+            var configuration = serviceProvider.GetService<IConfiguration>();
+            var notionSecret = configuration?["Notion:Secret"];
+            var notionDatabaseId = configuration?["Notion:DatabaseId"];
+
             using (var context = new ApplicationContext(
-                serviceProvider.GetRequiredService<DbContextOptions<ApplicationContext>>()))
+                serviceProvider.GetRequiredService<DbContextOptions<ApplicationContext>>() ))
             {
                 var logger = serviceProvider.GetRequiredService<ILogger<ApplicationContext>>();
 
                 try
                 {
-                    // Ensure the database is created
+                    // Ensure the database is created, even if we only use Notion-synced data.
                     context.Database.EnsureCreated();
+
+                    if (!string.IsNullOrWhiteSpace(notionSecret) && !string.IsNullOrWhiteSpace(notionDatabaseId))
+                    {
+                        logger.LogInformation("Notion is configured. Skipping local database seeding.");
+                        return;
+                    }
 
                     // Check if the database has already been seeded
                     if (context.Ages.Any())
@@ -30,19 +41,15 @@ namespace Infrastructure
 
                     logger.LogInformation("Database is empty. Seeding from backup_datos.sql...");
 
-                    // Refined path resolution for Architect Audit
-                    // 1. Check relative to current working directory (Local Dev)
                     string scriptPath = Path.Combine(Directory.GetCurrentDirectory(), "..", "database", "backup_datos.sql");
-                    
+
                     if (!File.Exists(scriptPath))
                     {
-                        // 2. Check relative to AppContext.BaseDirectory (Published/Unit Tests)
                         scriptPath = Path.Combine(AppContext.BaseDirectory, "..", "..", "..", "..", "database", "backup_datos.sql");
                     }
-                    
+
                     if (!File.Exists(scriptPath))
                     {
-                        // 3. Fallback for Docker environment mapping
                         scriptPath = "/app/database/backup_datos.sql";
                     }
 
