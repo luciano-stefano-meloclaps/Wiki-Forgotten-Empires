@@ -23,8 +23,29 @@ namespace ForgottenEmpire.HostedServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
+            var notionSecret = _configuration["Notion:Secret"];
+            var notionDatabaseId = _configuration["Notion:DatabaseId"];
+
+            // Si la configuración no está establecida (valores por defecto), no sincronizar
+            if (string.IsNullOrEmpty(notionSecret) || notionSecret.Contains("CONFIGURE_IN_APPSETTINGS") ||
+                string.IsNullOrEmpty(notionDatabaseId) || notionDatabaseId.Contains("CONFIGURE_IN_APPSETTINGS"))
+            {
+                _logger.LogWarning("Notion sync is disabled: Configuration values not set. Please configure Notion:Secret and Notion:DatabaseId in appsettings.Development.json or user-secrets.");
+                return;
+            }
+
             var pollingSeconds = _configuration.GetValue<int>("Notion:PollingIntervalSeconds", 300);
             _logger.LogInformation("Notion sync worker started. Polling every {PollingSeconds} seconds.", pollingSeconds);
+
+            // Esperar 10 segundos antes de la primera sincronización para permitir que la aplicación inicie correctamente
+            try
+            {
+                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
+            }
+            catch (OperationCanceledException)
+            {
+                return;
+            }
 
             while (!stoppingToken.IsCancellationRequested)
             {
@@ -40,7 +61,7 @@ namespace ForgottenEmpire.HostedServices
                 }
                 catch (Exception ex)
                 {
-                    _logger.LogError(ex, "Error during Notion sync execution.");
+                    _logger.LogError(ex, "Error during Notion sync execution. Will retry in {PollingSeconds} seconds.", pollingSeconds);
                 }
 
                 try
