@@ -27,7 +27,7 @@ namespace Application.Services
             return civilizations.Select(CivilizationGalleryDto.ToDto);
         }
 
-        public async Task<CivilizationDetailDto?> GetCivizlizationById(int id, CancellationToken ct)
+        public async Task<CivilizationDetailDto?> GetCivilizationById(int id, CancellationToken ct)
         {
             var civilization = await _civilizationRepository.GetCivizlizationById(id, ct);
             return civilization is null ? null : CivilizationDetailDto.ToDto(civilization);

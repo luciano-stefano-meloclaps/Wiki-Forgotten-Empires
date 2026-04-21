@@ -1,0 +1,18 @@
+{
+  "devDependencies": {
+    "husky": "^9.1.7",
+    "lint-staged": "^16.4.0",
+    "secretlint": "^12.1.0"
+  },
+  "scripts": {
+    "prepare": "husky"
+  },
+  "lint-staged": {
+    "*.{js,ts,tsx,cs}": [
+      "secretlint --maskSecrets"
+    ],
+    "*.{json,cs}": [
+      "secretlint --maskSecrets"
+    ]
+  }
+}

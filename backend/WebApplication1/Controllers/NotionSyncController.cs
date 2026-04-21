@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
 
 namespace ForgottenEmpire.Controllers
@@ -15,16 +16,19 @@ namespace ForgottenEmpire.Controllers
         }
 
         [HttpPost("sync")]
+        [Authorize(Roles = "Admin")] // 🔒 SEGURIDAD: Solo administradores pueden ejecutar sync
         public async Task<IActionResult> Sync(CancellationToken ct)
         {
             try
             {
                 await _notionSyncService.SyncFromNotionAsync(ct);
-                return Ok(new { message = "Notion sync ejecutado." });
+                return Ok(new { message = "Notion sync ejecutado exitosamente.", timestamp = DateTime.UtcNow });
             }
             catch (Exception ex)
             {
-                return StatusCode(500, new { error = ex.Message });
+                // ⚠️  SEGURIDAD: No exponer stack trace en producción
+                var error = ex.InnerException?.Message ?? ex.Message;
+                return StatusCode(500, new { error });
             }
         }
 

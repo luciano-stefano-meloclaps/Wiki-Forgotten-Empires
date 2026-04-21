@@ -14,16 +14,20 @@ using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
 
-// CORS espec�fica para nuestro entorno de desarrollo.
+// 🔒 SEGURIDAD: CORS configurado desde appsettings para mayor flexibilidad
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
 builder.Services.AddCors(options =>
 {
     options.AddPolicy(name: MyAllowSpecificOrigins,
                       policy =>
                       {
-                          policy.WithOrigins("http://localhost:3000") // Solo permitimos este origen
-                                .AllowAnyHeader()                     // Permitimos cualquier cabecera (Content-Type, etc.)
-                                .AllowAnyMethod();                    // Permitimos cualquier m�todo (GET, POST, etc.)
+                          // Leer orígenes permitidos desde configuración
+                          var allowedOrigins = builder.Configuration.GetSection("Cors:AllowedOrigins").Get<string[]>() ?? new[] { "http://localhost:3000" };
+
+                          policy.WithOrigins(allowedOrigins)
+                                .WithMethods("GET", "POST", "PUT", "DELETE", "OPTIONS") // Métodos específicos en lugar de AllowAnyMethod
+                                .WithHeaders("Content-Type", "Authorization", "Accept") // Headers específicos en lugar de AllowAnyHeader
+                                .AllowCredentials(); // Solo si es necesario para autenticación
                       });
 });
 builder.Services.AddControllers();

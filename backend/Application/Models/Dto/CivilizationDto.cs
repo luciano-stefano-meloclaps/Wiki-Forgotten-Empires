@@ -10,6 +10,8 @@ namespace Application.Models.Dto
 
         public string Name { get; set; } = default!;
 
+        public string? Summary { get; set; }
+
         public string? ImageUrl { get; set; }
 
         public List<string> Territories { get; set; } = new();
@@ -17,15 +19,23 @@ namespace Application.Models.Dto
         [JsonConverter(typeof(JsonStringEnumConverter))]
         public CivilizationState State { get; set; }
 
+        public int AgesCount { get; set; }
+        public int CharactersCount { get; set; }
+        public int BattlesCount { get; set; }
+
         public static CivilizationGalleryDto ToDto(Civilization civilization)
         {
             return new CivilizationGalleryDto
             {
                 Id = civilization.Id,
                 Name = civilization.Name,
+                Summary = civilization.Summary,
                 ImageUrl = civilization.ImageUrl,
                 Territories = civilization.Territories.Select(ct => ct.Territory.Name).ToList(),
-                State = civilization.State
+                State = civilization.State,
+                AgesCount = civilization.Ages.Count,
+                CharactersCount = civilization.Characters.Count,
+                BattlesCount = civilization.Battles.Count
             };
         }
     }
@@ -60,8 +70,10 @@ namespace Application.Models.Dto
                 State = civilization.State,
                 //Relaciones
                 Characters = civilization.Characters.Select(c => CharacterDtoCard.ToDto(c)).ToList(),
-                //Si da NULL hacer un where sino !
-                Ages = civilization.Ages.Select(a => AgeAccordionDto.ToDto(a.Age)).ToList(),
+                Ages = civilization.Ages
+                    .Where(a => a.Age != null)
+                    .Select(a => AgeAccordionDto.ToDto(a.Age!))
+                    .ToList(),
                 Battles = civilization.Battles.Select(b => BattleTableDto.ToDto(b.Battle)).ToList()
             };
         }

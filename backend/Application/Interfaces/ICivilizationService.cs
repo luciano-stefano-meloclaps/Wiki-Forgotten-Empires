@@ -7,7 +7,7 @@ namespace Application.Interfaces
     {
         Task<IEnumerable<CivilizationGalleryDto>> GetAllCivilization(CancellationToken ct);
 
-        Task<CivilizationDetailDto?> GetCivizlizationById(int id, CancellationToken ct);
+        Task<CivilizationDetailDto?> GetCivilizationById(int id, CancellationToken ct);
 
         Task<CivilizationDetailDto> CreateCivilization(CreateCivilizationRequest request, CancellationToken ct);
 

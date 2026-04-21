@@ -6,6 +6,19 @@
 [Bb]in/
 [Oo]bj/
 Properties/launchSettings.json
+appsettings.Development.json
+appsettings.Production.json
+
+# Security - Exposed secrets (DO NOT REMOVE)
+notion_db_check.txt
+sync_response.json
+*.secrets.json
+
+# Environment variables
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
 
 # Node.js / Next.js
 node_modules/
