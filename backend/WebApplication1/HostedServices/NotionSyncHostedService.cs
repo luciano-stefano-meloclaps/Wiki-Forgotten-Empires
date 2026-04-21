@@ -25,12 +25,22 @@ namespace ForgottenEmpire.HostedServices
         {
             var notionSecret = _configuration["Notion:Secret"];
             var notionDatabaseId = _configuration["Notion:DatabaseId"];
+            var charDbId = _configuration["Notion:CharactersDatabaseId"];
+            var civDbId = _configuration["Notion:CivilizationsDatabaseId"];
+            var battleDbId = _configuration["Notion:BattlesDatabaseId"];
+            var ageDbId = _configuration["Notion:AgesDatabaseId"];
+
+            bool hasAnyDbConfigured = 
+                (!string.IsNullOrEmpty(notionDatabaseId) && !notionDatabaseId.Contains("CONFIGURE_IN_APPSETTINGS")) ||
+                (!string.IsNullOrEmpty(charDbId) && !charDbId.Contains("CONFIGURE_IN_APPSETTINGS")) ||
+                (!string.IsNullOrEmpty(civDbId) && !civDbId.Contains("CONFIGURE_IN_APPSETTINGS")) ||
+                (!string.IsNullOrEmpty(battleDbId) && !battleDbId.Contains("CONFIGURE_IN_APPSETTINGS")) ||
+                (!string.IsNullOrEmpty(ageDbId) && !ageDbId.Contains("CONFIGURE_IN_APPSETTINGS"));
 
             // Si la configuración no está establecida (valores por defecto), no sincronizar
-            if (string.IsNullOrEmpty(notionSecret) || notionSecret.Contains("CONFIGURE_IN_APPSETTINGS") ||
-                string.IsNullOrEmpty(notionDatabaseId) || notionDatabaseId.Contains("CONFIGURE_IN_APPSETTINGS"))
+            if (string.IsNullOrEmpty(notionSecret) || notionSecret.Contains("CONFIGURE_IN_APPSETTINGS") || !hasAnyDbConfigured)
             {
-                _logger.LogWarning("Notion sync is disabled: Configuration values not set. Please configure Notion:Secret and Notion:DatabaseId in appsettings.Development.json or user-secrets.");
+                _logger.LogWarning("Notion sync is disabled: Configuration values not set. Please configure Notion:Secret and at least one DatabaseId.");
                 return;
             }
 

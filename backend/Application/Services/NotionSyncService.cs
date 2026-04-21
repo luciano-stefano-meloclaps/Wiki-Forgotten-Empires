@@ -43,16 +43,27 @@ namespace Application.Services
         public async Task SyncFromNotionAsync(CancellationToken ct)
         {
             var notionToken = _configuration["Notion:Secret"];
-            var databaseId = _configuration["Notion:DatabaseId"];
-
-            if (string.IsNullOrWhiteSpace(notionToken) || string.IsNullOrWhiteSpace(databaseId))
+            if (string.IsNullOrWhiteSpace(notionToken))
             {
-                throw new InvalidOperationException("Notion integration is not configured. Configure Notion:Secret and Notion:DatabaseId in appsettings.");
+                throw new InvalidOperationException("Notion integration is not configured. Configure Notion:Secret in appsettings.");
             }
 
             _httpClient.DefaultRequestHeaders.Authorization = new AuthenticationHeaderValue("Bearer", notionToken);
             _httpClient.DefaultRequestHeaders.Remove("Notion-Version");
             _httpClient.DefaultRequestHeaders.Add("Notion-Version", "2022-06-28");
+
+            await SyncDatabaseAsync(_configuration["Notion:AgesDatabaseId"], "age", ct);
+            await SyncDatabaseAsync(_configuration["Notion:CivilizationsDatabaseId"], "civilization", ct);
+            await SyncDatabaseAsync(_configuration["Notion:BattlesDatabaseId"], "battle", ct);
+            await SyncDatabaseAsync(_configuration["Notion:CharactersDatabaseId"], "character", ct);
+            
+            // Fallback for previous single database logic
+            await SyncDatabaseAsync(_configuration["Notion:DatabaseId"], "mixed", ct); 
+        }
+
+        private async Task SyncDatabaseAsync(string? databaseId, string defaultType, CancellationToken ct)
+        {
+            if (string.IsNullOrWhiteSpace(databaseId)) return;
 
             using var request = new HttpRequestMessage(HttpMethod.Post, $"databases/{databaseId}/query")
             {
@@ -60,59 +71,93 @@ namespace Application.Services
             };
 
             var response = await _httpClient.SendAsync(request, ct);
-            response.EnsureSuccessStatusCode();
+            if (!response.IsSuccessStatusCode) return;
 
             using var stream = await response.Content.ReadAsStreamAsync(ct);
             var queryResult = await JsonSerializer.DeserializeAsync<NotionQueryResult>(stream, GetJsonSerializerOptions(), ct);
-            if (queryResult?.Results == null)
-            {
-                return;
-            }
+            if (queryResult?.Results == null) return;
 
             foreach (var page in queryResult.Results)
             {
-                await SyncPageAsync(page, ct);
+                await SyncPageAsync(page, defaultType, ct);
             }
         }
 
-        private async Task SyncPageAsync(NotionPage page, CancellationToken ct)
+        private async Task SyncPageAsync(NotionPage page, string defaultType, CancellationToken ct)
         {
-            var name = page.GetTitle("Name") ?? page.GetTitle("Title");
-            if (string.IsNullOrWhiteSpace(name))
-            {
-                return;
-            }
+            var name = page.GetTitle("Name") ?? page.GetTitle("Title") ?? page.GetTitle("Conflictos") ?? page.GetTitle("Nombre");
+            if (string.IsNullOrWhiteSpace(name)) return;
 
             var entityType = page.GetSelect("EntityType")
                 ?? page.GetSelect("Type")
                 ?? page.GetSelect("Tipo")
-                ?? "Civilization";
+                ?? defaultType;
 
             switch (entityType.Trim().ToLowerInvariant())
             {
                 case "character":
+                case "personaje":
                     await SyncCharacterAsync(page, name, ct);
                     break;
                 case "battle":
+                case "batalla":
                     await SyncBattleAsync(page, name, ct);
                     break;
+                case "age":
+                case "era":
+                case "periodo":
+                    await SyncAgeAsync(page, name, ct);
+                    break;
+                case "civilization":
+                case "civilizacion":
+                case "civilización":
                 default:
-                    // Default to Civilization if no specific type is found or explicitly marked as "civilization"
                     await SyncCivilizationAsync(page, name, ct);
                     break;
             }
         }
 
+        private async Task SyncAgeAsync(NotionPage page, string name, CancellationToken ct)
+        {
+            var summary = page.GetText("Summary") ?? page.GetText("Resumen") ?? page.GetText("Description") ?? page.GetText("Descripción");
+            var overview = page.GetText("Overview") ?? page.GetText("Visión General") ?? page.GetText("Características") ?? summary;
+            var date = page.GetText("Date") ?? page.GetText("Fecha");
+
+            var existingAge = await _ageRepository.GetAgeByName(name.Trim(), ct);
+            if (existingAge is null)
+            {
+                var age = new Age
+                {
+                    Name = name.Trim(),
+                    Summary = summary,
+                    Overview = overview,
+                    Date = date
+                };
+
+                await _ageRepository.CreateAge(age, ct);
+                return;
+            }
+
+            if (!string.IsNullOrWhiteSpace(summary)) existingAge.Summary = summary;
+            if (!string.IsNullOrWhiteSpace(overview)) existingAge.Overview = overview;
+            if (!string.IsNullOrWhiteSpace(date)) existingAge.Date = date;
+
+            await _ageRepository.UpdateAge(existingAge, ct);
+        }
+
         private async Task SyncCharacterAsync(NotionPage page, string name, CancellationToken ct)
         {
-            var role = ParseEnum<RoleCharacter>(page.GetSelect("Role"));
-            var ageId = await ResolveAgeIdAsync(page.GetSelect("Age"), ct);
-            var civilizationId = await ResolveCivilizationIdAsync(page.GetSelect("Civilization"), ct);
-            var description = page.GetText("Description");
-            var honorificTitle = page.GetText("HonorificTitle");
-            var lifePeriod = page.GetText("LifePeriod");
-            var dynasty = page.GetText("Dynasty");
-            var imageUrl = page.GetText("ImageUrl");
+            var roleList = page.GetMultiSelect("Role") ?? page.GetMultiSelect("Rol");
+            var roleString = roleList?.FirstOrDefault() ?? page.GetSelect("Role") ?? page.GetSelect("Rol");
+            var role = ParseRole(roleString);
+            
+            var description = page.GetText("Description") ?? page.GetText("Descripción") ?? page.GetText("Descripcion");
+            var honorificTitle = page.GetText("HonorificTitle") ?? page.GetText("Título Honorífico") ?? page.GetText("Titulo");
+            
+            // Age in new Notion is a number/text that acts as life period
+            var lifePeriod = page.GetText("LifePeriod") ?? page.GetText("Período de Vida") ?? page.GetText("Periodo") ?? page.GetText("Age");
+            var dynasty = page.GetText("Dynasty") ?? page.GetText("Dinastía") ?? page.GetText("Dinastia");
+            var imageUrl = page.GetText("ImageUrl") ?? page.GetText("Image") ?? page.GetText("Imagen");
 
             var existing = await _characterRepository.GetCharacterByName(name, ct);
             if (existing is null)
@@ -125,34 +170,93 @@ namespace Application.Services
                     LifePeriod = lifePeriod,
                     Dynasty = dynasty,
                     ImageUrl = imageUrl,
-                    Role = role,
-                    AgeId = ageId,
-                    CivilizationId = civilizationId
+                    Role = role
                 };
-
-                await _characterRepository.CreateCharacter(CharacterCreateRequest.ToEntity(request), ct);
-                return;
+                existing = CharacterCreateRequest.ToEntity(request);
+                existing = await _characterRepository.CreateCharacter(existing, ct);
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(description)) existing.Description = description;
+                if (!string.IsNullOrWhiteSpace(honorificTitle)) existing.HonorificTitle = honorificTitle;
+                if (!string.IsNullOrWhiteSpace(lifePeriod)) existing.LifePeriod = lifePeriod;
+                if (!string.IsNullOrWhiteSpace(dynasty)) existing.Dynasty = dynasty;
+                if (!string.IsNullOrWhiteSpace(imageUrl)) existing.ImageUrl = imageUrl;
+                if (role is not null) existing.Role = role;
             }
 
-            if (!string.IsNullOrWhiteSpace(description)) existing.Description = description;
-            if (!string.IsNullOrWhiteSpace(honorificTitle)) existing.HonorificTitle = honorificTitle;
-            if (!string.IsNullOrWhiteSpace(lifePeriod)) existing.LifePeriod = lifePeriod;
-            if (!string.IsNullOrWhiteSpace(dynasty)) existing.Dynasty = dynasty;
-            if (!string.IsNullOrWhiteSpace(imageUrl)) existing.ImageUrl = imageUrl;
-            if (role is not null) existing.Role = role;
-            if (ageId.HasValue) existing.AgeId = ageId;
-            if (civilizationId.HasValue) existing.CivilizationId = civilizationId;
+            var ageRelationIds = page.GetRelationIds("Periodos") ?? page.GetRelationIds("Age") ?? new List<string>();
+            if (ageRelationIds.Any())
+            {
+                var agePage = await FetchNotionPageAsync(ageRelationIds.First(), ct);
+                var ageName = agePage.GetTitle("Name") ?? agePage.GetTitle("Title");
+                existing.AgeId = await ResolveAgeIdAsync(ageName, ct);
+            }
 
+            var civRelationIds = page.GetRelationIds("Civilizations") ?? page.GetRelationIds("Civilizaciones") ?? new List<string>();
+            if (civRelationIds.Any())
+            {
+                var civPage = await FetchNotionPageAsync(civRelationIds.First(), ct);
+                var civName = civPage.GetTitle("Name") ?? civPage.GetTitle("Title");
+                existing.CivilizationId = await ResolveCivilizationIdAsync(civName, ct);
+            }
+
+            var victoryIds = page.GetRelationIds("Victory") ?? page.GetRelationIds("Victorias");
+            var defeatIds = page.GetRelationIds("Defeat") ?? page.GetRelationIds("Derrotas");
+            
+            await SetCharacterBattleRelationsAsync(existing, victoryIds, defeatIds, ct);
             await _characterRepository.UpdateCharacter(existing, ct);
+        }
+
+        private async Task SetCharacterBattleRelationsAsync(Character character, List<string>? victoryIds, List<string>? defeatIds, CancellationToken ct)
+        {
+            var processedBattleIds = new HashSet<int>();
+
+            async Task ProcessRelations(List<string>? notionIds, ParticipantOutcome outcome)
+            {
+                if (notionIds == null) return;
+                foreach (var id in notionIds)
+                {
+                    var battlePage = await FetchNotionPageAsync(id, ct);
+                    var battleName = battlePage.GetTitle("Name") ?? battlePage.GetTitle("Title") ?? battlePage.GetTitle("Conflictos");
+                    if (string.IsNullOrWhiteSpace(battleName)) continue;
+
+                    var battle = await _battleRepository.GetBattleByName(battleName, ct);
+                    if (battle == null)
+                    {
+                        battle = await _battleRepository.CreateBattle(new Battle { Name = battleName }, ct);
+                    }
+
+                    processedBattleIds.Add(battle.Id);
+                    
+                    var existingCb = character.Battles.FirstOrDefault(cb => cb.BattleId == battle.Id);
+                    if (existingCb == null)
+                    {
+                        character.Battles.Add(new CharacterBattle
+                        {
+                            CharacterId = character.Id,
+                            BattleId = battle.Id,
+                            Outcome = outcome
+                        });
+                    }
+                    else
+                    {
+                        existingCb.Outcome = outcome;
+                    }
+                }
+            }
+
+            await ProcessRelations(victoryIds, ParticipantOutcome.Victory);
+            await ProcessRelations(defeatIds, ParticipantOutcome.Defeat);
         }
 
         private async Task SyncBattleAsync(NotionPage page, string name, CancellationToken ct)
         {
-            var battleDate = page.GetText("Date");
-            var summary = page.GetText("Summary");
-            var detailedDescription = page.GetText("DetailedDescription") ?? page.GetText("Description");
-            var territory = ParseEnum<TerritoryType>(page.GetSelect("Territory"));
-            var ageId = await ResolveAgeIdAsync(page.GetSelect("Age"), ct);
+            var battleDate = page.GetText("Date") ?? page.GetText("Fecha");
+            var summary = page.GetText("Summary") ?? page.GetText("Resumen");
+            var detailedDescription = page.GetText("DetailedDescription") ?? page.GetText("Description") ?? page.GetText("Descripción");
+            var territoryString = page.GetSelect("Territory") ?? page.GetSelect("Territorio");
+            var territory = ParseEnum<TerritoryType>(territoryString);
 
             var existing = await _battleRepository.GetBattleByName(name, ct);
             if (existing is null)
@@ -163,33 +267,42 @@ namespace Application.Services
                     Date = battleDate,
                     Summary = summary,
                     DetailedDescription = detailedDescription,
-                    Territory = territory,
-                    AgeId = ageId
+                    Territory = territory
                 };
-
-                await _battleRepository.CreateBattle(BattleCreateRequest.ToEntity(request), ct);
-                return;
+                existing = BattleCreateRequest.ToEntity(request);
+                existing = await _battleRepository.CreateBattle(existing, ct);
+            }
+            else
+            {
+                if (!string.IsNullOrWhiteSpace(battleDate)) existing.Date = battleDate;
+                if (!string.IsNullOrWhiteSpace(summary)) existing.Summary = summary;
+                if (!string.IsNullOrWhiteSpace(detailedDescription)) existing.DetailedDescription = detailedDescription;
+                if (territory is not null) existing.Territory = territory;
             }
 
-            if (!string.IsNullOrWhiteSpace(battleDate)) existing.Date = battleDate;
-            if (!string.IsNullOrWhiteSpace(summary)) existing.Summary = summary;
-            if (!string.IsNullOrWhiteSpace(detailedDescription)) existing.DetailedDescription = detailedDescription;
-            if (territory is not null) existing.Territory = territory;
-            if (ageId.HasValue) existing.AgeId = ageId;
+            var ageRelationIds = page.GetRelationIds("Periodo") ?? page.GetRelationIds("Age") ?? new List<string>();
+            if (ageRelationIds.Any())
+            {
+                var agePage = await FetchNotionPageAsync(ageRelationIds.First(), ct);
+                var ageName = agePage.GetTitle("Name") ?? agePage.GetTitle("Title");
+                existing.AgeId = await ResolveAgeIdAsync(ageName, ct);
+            }
 
             await _battleRepository.UpdateBattle(existing, ct);
         }
 
         private async Task SyncCivilizationAsync(NotionPage page, string name, CancellationToken ct)
         {
-            var summary = page.GetText("Summary") ?? page.GetText("Description");
-            var overview = page.GetText("Overview") ?? summary;
-            var imageUrl = page.GetText("ImageUrl") ?? page.GetText("Image");
-            var state = ParseEnum<CivilizationState>(page.GetSelect("State"));
-            var territories = page.GetMultiSelect("Regions");
-            var ageRelationIds = page.GetRelationIds("Ages");
-            var battleRelationIds = page.GetRelationIds("Battles");
-            var characterRelationIds = page.GetRelationIds("Characters");
+            var summary = page.GetText("Summary") ?? page.GetText("Description") ?? page.GetText("Descripción");
+            var overview = page.GetText("Overview") ?? page.GetText("Visión General") ?? summary;
+            var imageUrl = page.GetText("ImageUrl") ?? page.GetText("Image") ?? page.GetText("Imagen");
+            var stateString = page.GetSelect("State") ?? page.GetSelect("Estado");
+            var state = ParseEnum<CivilizationState>(stateString);
+            var territories = page.GetMultiSelect("Regions") ?? page.GetMultiSelect("Regiones") ?? new List<string>();
+            
+            var ageRelationIds = page.GetRelationIds("Ages") ?? page.GetRelationIds("Eras") ?? new List<string>();
+            var battleRelationIds = page.GetRelationIds("Battles") ?? page.GetRelationIds("Batallas") ?? new List<string>();
+            var characterRelationIds = page.GetRelationIds("Characters") ?? page.GetRelationIds("Personajes") ?? new List<string>();
 
             var existing = await _civilizationRepository.GetCivilizationByName(name.Trim(), ct);
             if (existing is null)
@@ -212,11 +325,10 @@ namespace Application.Services
                 return;
             }
 
-            existing.Name = name.Trim();
-            existing.Summary = summary;
-            existing.Overview = overview;
-            existing.ImageUrl = imageUrl;
-            existing.State = state ?? CivilizationState.None;
+            if (!string.IsNullOrWhiteSpace(summary)) existing.Summary = summary;
+            if (!string.IsNullOrWhiteSpace(overview)) existing.Overview = overview;
+            if (!string.IsNullOrWhiteSpace(imageUrl)) existing.ImageUrl = imageUrl;
+            if (state is not null) existing.State = state ?? CivilizationState.None;
 
             await SetCivilizationTerritoriesAsync(existing, territories, ct);
             await SetCivilizationAgeRelationsAsync(existing, ageRelationIds, ct);
@@ -227,11 +339,7 @@ namespace Application.Services
 
         private async Task SetCivilizationTerritoriesAsync(Civilization civilization, List<string> territoryNames, CancellationToken ct)
         {
-            if (!territoryNames.Any())
-            {
-                civilization.Territories.Clear();
-                return;
-            }
+            if (!territoryNames.Any()) return;
 
             var existingTerritories = await _territoryRepository.GetTerritoriesByNames(territoryNames, ct);
             var existingMap = existingTerritories.ToDictionary(t => t.Name, StringComparer.OrdinalIgnoreCase);
@@ -257,39 +365,30 @@ namespace Application.Services
 
         private async Task SetCivilizationCharacterRelationsAsync(Civilization civilization, List<string> pageIds, CancellationToken ct)
         {
-            if (!pageIds.Any())
-            {
-                foreach (var character in civilization.Characters)
-                {
-                    character.CivilizationId = null;
-                }
-
-                civilization.Characters.Clear();
-                return;
-            }
+            if (!pageIds.Any()) return;
 
             foreach (var relationId in pageIds.Distinct())
             {
                 var characterPage = await FetchNotionPageAsync(relationId, ct);
-                var characterName = characterPage.GetTitle("Name") ?? characterPage.GetTitle("Title");
-                if (string.IsNullOrWhiteSpace(characterName))
-                {
-                    continue;
-                }
+                var characterName = characterPage.GetTitle("Name") ?? characterPage.GetTitle("Title") ?? characterPage.GetTitle("Nombre");
+                if (string.IsNullOrWhiteSpace(characterName)) continue;
 
                 var existingCharacter = await _characterRepository.GetCharacterByName(characterName, ct);
                 if (existingCharacter is null)
                 {
+                    var roleList = characterPage.GetMultiSelect("Role") ?? characterPage.GetMultiSelect("Rol");
+                    var roleString = roleList?.FirstOrDefault() ?? characterPage.GetSelect("Role") ?? characterPage.GetSelect("Rol");
+                    var role = ParseRole(roleString);
                     var character = new Character
                     {
                         Name = characterName,
-                        Description = characterPage.GetText("Description"),
-                        HonorificTitle = characterPage.GetText("HonorificTitle"),
-                        LifePeriod = characterPage.GetText("LifePeriod"),
-                        Dynasty = characterPage.GetText("Dynasty"),
-                        ImageUrl = characterPage.GetText("ImageUrl"),
+                        Description = characterPage.GetText("Description") ?? characterPage.GetText("Descripción"),
+                        HonorificTitle = characterPage.GetText("HonorificTitle") ?? characterPage.GetText("Título Honorífico"),
+                        LifePeriod = characterPage.GetText("LifePeriod") ?? characterPage.GetText("Período de Vida") ?? characterPage.GetText("Age"),
+                        Dynasty = characterPage.GetText("Dynasty") ?? characterPage.GetText("Dinastía"),
+                        ImageUrl = characterPage.GetText("ImageUrl") ?? characterPage.GetText("Image"),
                         CivilizationId = civilization.Id,
-                        Role = ParseEnum<RoleCharacter>(characterPage.GetSelect("Role"))
+                        Role = role
                     };
 
                     await _characterRepository.CreateCharacter(character, ct);
@@ -303,30 +402,24 @@ namespace Application.Services
 
         private async Task SetCivilizationAgeRelationsAsync(Civilization civilization, List<string> pageIds, CancellationToken ct)
         {
-            if (!pageIds.Any())
-            {
-                civilization.Ages.Clear();
-                return;
-            }
+            if (!pageIds.Any()) return;
 
             foreach (var relationId in pageIds.Distinct())
             {
                 var agePage = await FetchNotionPageAsync(relationId, ct);
                 var ageName = agePage.GetTitle("Name") ?? agePage.GetTitle("Title");
-                if (string.IsNullOrWhiteSpace(ageName))
-                {
-                    continue;
-                }
+                if (string.IsNullOrWhiteSpace(ageName)) continue;
 
                 var existingAge = await _ageRepository.GetAgeByName(ageName, ct);
                 if (existingAge is null)
                 {
+                    var summary = agePage.GetText("Summary") ?? agePage.GetText("Resumen") ?? agePage.GetText("Descripción");
                     var age = new Age
                     {
                         Name = ageName,
-                        Summary = agePage.GetText("Summary") ?? agePage.GetText("Description"),
-                        Overview = agePage.GetText("Overview"),
-                        Date = agePage.GetText("Date")
+                        Summary = summary,
+                        Overview = agePage.GetText("Overview") ?? agePage.GetText("Visión General") ?? summary,
+                        Date = agePage.GetText("Date") ?? agePage.GetText("Fecha")
                     };
 
                     existingAge = await _ageRepository.CreateAge(age, ct);
@@ -347,32 +440,33 @@ namespace Application.Services
 
         private async Task SetCivilizationBattleRelationsAsync(Civilization civilization, List<string> pageIds, CancellationToken ct)
         {
-            if (!pageIds.Any())
-            {
-                civilization.Battles.Clear();
-                return;
-            }
+            if (!pageIds.Any()) return;
 
             foreach (var relationId in pageIds.Distinct())
             {
                 var battlePage = await FetchNotionPageAsync(relationId, ct);
-                var battleName = battlePage.GetTitle("Name") ?? battlePage.GetTitle("Title");
-                if (string.IsNullOrWhiteSpace(battleName))
-                {
-                    continue;
-                }
+                var battleName = battlePage.GetTitle("Name") ?? battlePage.GetTitle("Title") ?? battlePage.GetTitle("Conflictos");
+                if (string.IsNullOrWhiteSpace(battleName)) continue;
 
                 var existingBattle = await _battleRepository.GetBattleByName(battleName, ct);
                 if (existingBattle is null)
                 {
+                    var territoryString = battlePage.GetSelect("Territory") ?? battlePage.GetSelect("Territorio");
+                    var ageRelationIds = battlePage.GetRelationIds("Periodo") ?? battlePage.GetRelationIds("Age") ?? new List<string>();
+                    int? ageId = null;
+                    if (ageRelationIds.Any()) {
+                        var agePage = await FetchNotionPageAsync(ageRelationIds.First(), ct);
+                        ageId = await ResolveAgeIdAsync(agePage.GetTitle("Name") ?? agePage.GetTitle("Title"), ct);
+                    }
+
                     var battle = new Battle
                     {
                         Name = battleName,
-                        Date = battlePage.GetText("Date"),
-                        Summary = battlePage.GetText("Summary"),
-                        DetailedDescription = battlePage.GetText("DetailedDescription") ?? battlePage.GetText("Description"),
-                        Territory = ParseEnum<TerritoryType>(battlePage.GetSelect("Territory")),
-                        AgeId = await ResolveAgeIdAsync(battlePage.GetSelect("Age"), ct)
+                        Date = battlePage.GetText("Date") ?? battlePage.GetText("Fecha"),
+                        Summary = battlePage.GetText("Summary") ?? battlePage.GetText("Resumen"),
+                        DetailedDescription = battlePage.GetText("DetailedDescription") ?? battlePage.GetText("Descripción"),
+                        Territory = ParseEnum<TerritoryType>(territoryString),
+                        AgeId = ageId
                     };
 
                     existingBattle = await _battleRepository.CreateBattle(battle, ct);
@@ -402,39 +496,24 @@ namespace Application.Services
 
         private async Task<int?> ResolveAgeIdAsync(string? ageName, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(ageName))
-            {
-                return null;
-            }
+            if (string.IsNullOrWhiteSpace(ageName)) return null;
 
             var normalized = ageName.Trim();
             var existing = await _ageRepository.GetAgeByName(normalized, ct);
-            if (existing is not null)
-            {
-                return existing.Id;
-            }
+            if (existing is not null) return existing.Id;
 
-            var age = new Age
-            {
-                Name = normalized
-            };
+            var age = new Age { Name = normalized };
             var created = await _ageRepository.CreateAge(age, ct);
             return created.Id;
         }
 
         private async Task<int?> ResolveCivilizationIdAsync(string? civilizationName, CancellationToken ct)
         {
-            if (string.IsNullOrWhiteSpace(civilizationName))
-            {
-                return null;
-            }
+            if (string.IsNullOrWhiteSpace(civilizationName)) return null;
 
             var normalized = civilizationName.Trim();
             var existing = await _civilizationRepository.GetCivilizationByName(normalized, ct);
-            if (existing is not null)
-            {
-                return existing.Id;
-            }
+            if (existing is not null) return existing.Id;
 
             var civilization = new Civilization
             {
@@ -447,14 +526,28 @@ namespace Application.Services
             return created.Id;
         }
 
-        private static TEnum? ParseEnum<TEnum>(string? value)
-            where TEnum : struct, Enum
+        private static RoleCharacter? ParseRole(string? value)
         {
-            if (string.IsNullOrWhiteSpace(value))
+            if (string.IsNullOrWhiteSpace(value)) return null;
+            var normalized = value.Trim().ToLowerInvariant();
+            return normalized switch
             {
-                return null;
-            }
+                "rey" or "king" => RoleCharacter.King,
+                "cónsul" or "consul" => RoleCharacter.Consul,
+                "caballero" or "knight" => RoleCharacter.Knight,
+                "emperador" or "emperor" => RoleCharacter.Emperor,
+                "faraón" or "faraon" or "pharaoh" => RoleCharacter.Pharaoh,
+                "sultán" or "sultan" => RoleCharacter.Sultan,
+                "político" or "politico" or "politician" => RoleCharacter.Politician,
+                "presidente" or "president" => RoleCharacter.President,
+                "líder militar" or "lider militar" or "militaryleader" => RoleCharacter.MilitaryLeader,
+                _ => ParseEnum<RoleCharacter>(value)
+            };
+        }
 
+        private static TEnum? ParseEnum<TEnum>(string? value) where TEnum : struct, Enum
+        {
+            if (string.IsNullOrWhiteSpace(value)) return null;
             return Enum.TryParse(value.Trim(), true, out TEnum result) ? result : null;
         }
 
@@ -484,68 +577,39 @@ namespace Application.Services
                     return GetPlainTextFromRichText(titleElement);
                 }
 
-                // Fallback to any title property, useful when the database title column is renamed (for example "Nombre").
                 foreach (var candidate in Properties.Values)
                 {
                     if (candidate.TryGetProperty("title", out var candidateTitleElement))
                     {
                         var title = GetPlainTextFromRichText(candidateTitleElement);
-                        if (!string.IsNullOrWhiteSpace(title))
-                        {
-                            return title;
-                        }
+                        if (!string.IsNullOrWhiteSpace(title)) return title;
                     }
                 }
-
                 return null;
             }
 
             public string? GetText(string propertyName)
             {
-                if (!TryGetProperty(propertyName, out var property))
-                {
-                    return null;
-                }
+                if (!TryGetProperty(propertyName, out var property)) return null;
 
-                if (property.TryGetProperty("rich_text", out var richTextElement))
-                {
-                    return GetPlainTextFromRichText(richTextElement);
-                }
-
-                if (property.TryGetProperty("title", out var titleElement))
-                {
-                    return GetPlainTextFromRichText(titleElement);
-                }
-
-                if (property.TryGetProperty("select", out var selectElement) && selectElement.TryGetProperty("name", out var nameElement))
-                {
-                    return nameElement.GetString();
-                }
+                if (property.TryGetProperty("rich_text", out var richTextElement)) return GetPlainTextFromRichText(richTextElement);
+                if (property.TryGetProperty("title", out var titleElement)) return GetPlainTextFromRichText(titleElement);
+                if (property.TryGetProperty("select", out var selectElement) && selectElement.TryGetProperty("name", out var nameElement)) return nameElement.GetString();
+                if (property.TryGetProperty("number", out var numberElement) && numberElement.ValueKind == JsonValueKind.Number) return numberElement.GetRawText();
 
                 return null;
             }
 
             public string? GetSelect(string propertyName)
             {
-                if (!TryGetProperty(propertyName, out var property))
-                {
-                    return null;
-                }
-
-                if (property.TryGetProperty("select", out var selectElement) && selectElement.TryGetProperty("name", out var nameElement))
-                {
-                    return nameElement.GetString();
-                }
-
+                if (!TryGetProperty(propertyName, out var property)) return null;
+                if (property.TryGetProperty("select", out var selectElement) && selectElement.TryGetProperty("name", out var nameElement)) return nameElement.GetString();
                 return null;
             }
 
             private bool TryGetProperty(string propertyName, out JsonElement property)
             {
-                if (Properties.TryGetValue(propertyName, out property))
-                {
-                    return true;
-                }
+                if (Properties.TryGetValue(propertyName, out property)) return true;
 
                 foreach (var kv in Properties)
                 {
@@ -555,50 +619,31 @@ namespace Application.Services
                         return true;
                     }
                 }
-
                 property = default;
                 return false;
             }
 
-            public List<string> GetMultiSelect(string propertyName)
+            public List<string>? GetMultiSelect(string propertyName)
             {
-                if (!Properties.TryGetValue(propertyName, out var property))
-                {
-                    return new List<string>();
-                }
+                if (!Properties.TryGetValue(propertyName, out var property)) return null;
+                if (!property.TryGetProperty("multi_select", out var multiSelectElement) || multiSelectElement.ValueKind != JsonValueKind.Array) return null;
 
-                if (!property.TryGetProperty("multi_select", out var multiSelectElement) || multiSelectElement.ValueKind != JsonValueKind.Array)
-                {
-                    return new List<string>();
-                }
-
-                var  results = new List<string>();
+                var results = new List<string>();
                 foreach (var item in multiSelectElement.EnumerateArray())
                 {
                     if (item.TryGetProperty("name", out var nameElement) && nameElement.ValueKind == JsonValueKind.String)
                     {
                         var name = nameElement.GetString();
-                        if (!string.IsNullOrWhiteSpace(name))
-                        {
-                            results.Add(name.Trim());
-                        }
+                        if (!string.IsNullOrWhiteSpace(name)) results.Add(name.Trim());
                     }
                 }
-
                 return results;
             }
 
-            public List<string> GetRelationIds(string propertyName)
+            public List<string>? GetRelationIds(string propertyName)
             {
-                if (!Properties.TryGetValue(propertyName, out var property))
-                {
-                    return new List<string>();
-                }
-
-                if (!property.TryGetProperty("relation", out var relationElement) || relationElement.ValueKind != JsonValueKind.Array)
-                {
-                    return new List<string>();
-                }
+                if (!Properties.TryGetValue(propertyName, out var property)) return null;
+                if (!property.TryGetProperty("relation", out var relationElement) || relationElement.ValueKind != JsonValueKind.Array) return null;
 
                 var results = new List<string>();
                 foreach (var item in relationElement.EnumerateArray())
@@ -606,35 +651,24 @@ namespace Application.Services
                     if (item.TryGetProperty("id", out var idElement) && idElement.ValueKind == JsonValueKind.String)
                     {
                         var id = idElement.GetString();
-                        if (!string.IsNullOrWhiteSpace(id))
-                        {
-                            results.Add(id.Trim());
-                        }
+                        if (!string.IsNullOrWhiteSpace(id)) results.Add(id.Trim());
                     }
                 }
-
                 return results;
             }
 
             private static string? GetPlainTextFromRichText(JsonElement element)
             {
-                if (element.ValueKind != JsonValueKind.Array)
-                {
-                    return null;
-                }
+                if (element.ValueKind != JsonValueKind.Array) return null;
 
                 foreach (var item in element.EnumerateArray())
                 {
                     if (item.TryGetProperty("plain_text", out var plainText) && plainText.ValueKind == JsonValueKind.String)
                     {
                         var text = plainText.GetString();
-                        if (!string.IsNullOrWhiteSpace(text))
-                        {
-                            return text.Trim();
-                        }
+                        if (!string.IsNullOrWhiteSpace(text)) return text.Trim();
                     }
                 }
-
                 return null;
             }
         }
