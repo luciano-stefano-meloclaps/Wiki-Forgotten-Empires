@@ -55,9 +55,16 @@ namespace Infrastructure
 
                     if (File.Exists(scriptPath))
                     {
-                        string sql = File.ReadAllText(scriptPath);
-                        context.Database.ExecuteSqlRaw(sql);
-                        logger.LogInformation("Database seeded successfully.");
+                        if (context.Database.IsSqlite())
+                        {
+                            string sql = File.ReadAllText(scriptPath);
+                            context.Database.ExecuteSqlRaw(sql);
+                            logger.LogInformation("Database seeded successfully from SQLite script.");
+                        }
+                        else
+                        {
+                            logger.LogInformation("Skipping SQLite seed script on non-SQLite database. Tables were created by EF Core.");
+                        }
                     }
                     else
                     {

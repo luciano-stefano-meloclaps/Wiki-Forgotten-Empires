@@ -6,7 +6,6 @@ using ForgottenEmpires.Application.Services;
 using ForgottenEmpire.HostedServices;
 using Infrastructure;
 using Infrastructure.Repositories;
-using Microsoft.Data.Sqlite;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
@@ -88,14 +87,14 @@ builder.Services.AddAuthentication("Bearer") //Especifica que el esquema de aute
         };
     });
 
-// Configure DbContext with SQLite
+// Configure DbContext with PostgreSQL (Render)
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
     // Obtenemos la cadena de conexi�n correcta del appsettings.json
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-    // Configuramos EF Core para que use SQLite con esa cadena de conexi�n
-    options.UseSqlite(connectionString);
+    // Configuramos EF Core para que use PostgreSQL con esa cadena de conexi�n
+    options.UseNpgsql(connectionString);
 });
 
 //Age

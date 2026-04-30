@@ -8,7 +8,7 @@ services:
     environment:
       - ASPNETCORE_ENVIRONMENT=Development
       - ASPNETCORE_URLS=http://+:8080
-      - ConnectionStrings__DefaultConnection=Data Source=/app/database/wiki-forgotten-empires.db
+      - ConnectionStrings__DefaultConnection=${DATABASE_URL}
       - Notion__Secret=${NOTION_SECRET}
       - Notion__DatabaseId=${NOTION_DATABASE_ID}
       - Notion__CharactersDatabaseId=${NOTION_CHARACTERS_DATABASE_ID}
