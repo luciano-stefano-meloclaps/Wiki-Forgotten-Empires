@@ -3,8 +3,24 @@
 import { Button } from "@/components/ui/button"
 import { ExternalLink, ArrowDown } from "lucide-react"
 import KintsugiDivider from "./KintsugiDivider"
+import { useGlobalStats } from "@/hooks/useGlobalStats"
+import { formatStatValue } from "@/lib/formatters"
+
+interface StatCardProps {
+  value: number | undefined
+  label: string
+}
+
+const StatCard = ({ value, label }: StatCardProps) => (
+  <div className="kpi-card-rectangular">
+    <div className="sacred-number-rectangular">{formatStatValue(value)}</div>
+    <div className="font-sans text-base md:text-lg text-muted-foreground">{label}</div>
+  </div>
+)
 
 export default function Hero() {
+  const { stats, loading, error } = useGlobalStats()
+
   const scrollToSection = (sectionId: string) => {
     const element = document.getElementById(sectionId)
     if (element) {
@@ -78,22 +94,10 @@ export default function Hero() {
         </div>
 
         <div className="grid grid-cols-2 md:grid-cols-4 gap-8 max-w-6xl mx-auto">
-          <div className="kpi-card-rectangular">
-            <div className="sacred-number-rectangular">500+</div>
-            <div className="font-sans text-base md:text-lg text-muted-foreground">Batallas</div>
-          </div>
-          <div className="kpi-card-rectangular">
-            <div className="sacred-number-rectangular">200+</div>
-            <div className="font-sans text-base md:text-lg text-muted-foreground">Personajes</div>
-          </div>
-          <div className="kpi-card-rectangular">
-            <div className="sacred-number-rectangular">50+</div>
-            <div className="font-sans text-base md:text-lg text-muted-foreground">Civilizaciones</div>
-          </div>
-          <div className="kpi-card-rectangular">
-            <div className="sacred-number-rectangular">10+</div>
-            <div className="font-sans text-base md:text-lg text-muted-foreground">Eras</div>
-          </div>
+          <StatCard value={stats?.totalBattles} label="Batallas" />
+          <StatCard value={stats?.totalCharacters} label="Personajes" />
+          <StatCard value={stats?.totalCivilizations} label="Civilizaciones" />
+          <StatCard value={stats?.totalAges} label="Eras" />
         </div>
       </div>
 
