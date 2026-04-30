@@ -11,11 +11,14 @@ appsettings.Production.json
 
 # Security - Exposed secrets (DO NOT REMOVE)
 notion_db_check.txt
+notion_ages.json
 sync_response.json
 *.secrets.json
 
 # Environment variables
 .env.local
+.env.docker.local
+.env.*.local
 .env.development.local
 .env.test.local
 .env.production.local

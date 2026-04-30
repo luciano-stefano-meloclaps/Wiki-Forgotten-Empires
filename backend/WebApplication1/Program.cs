@@ -115,6 +115,9 @@ builder.Services.AddScoped<IBattleService, BattleService>();
 builder.Services.AddScoped<ICharacterRepository, CharacterRepository>();
 builder.Services.AddScoped<ICharacterService, CharacterService>();
 
+// Statistics
+builder.Services.AddScoped<IStatisticsService, StatisticsService>();
+
 builder.Services.AddHostedService<NotionSyncHostedService>();
 
 var app = builder.Build();
