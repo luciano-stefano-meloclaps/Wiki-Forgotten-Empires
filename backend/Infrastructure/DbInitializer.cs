@@ -23,8 +23,8 @@ namespace Infrastructure
 
                 try
                 {
-                    // Ensure the database is created, even if we only use Notion-synced data.
-                    context.Database.EnsureCreated();
+                    // Apply EF Core migrations if the database file exists or needs schema updates.
+                    context.Database.Migrate();
 
                     if (!string.IsNullOrWhiteSpace(notionSecret) && !string.IsNullOrWhiteSpace(notionDatabaseId))
                     {
