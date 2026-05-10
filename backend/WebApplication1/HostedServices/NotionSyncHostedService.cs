@@ -1,4 +1,5 @@
 using Application.Interfaces;
+using Domain;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.Hosting;
 using Microsoft.Extensions.Logging;
@@ -23,22 +24,7 @@ namespace ForgottenEmpire.HostedServices
 
         protected override async Task ExecuteAsync(CancellationToken stoppingToken)
         {
-            var notionSecret = _configuration["Notion:Secret"];
-            var notionDatabaseId = _configuration["Notion:DatabaseId"];
-            var charDbId = _configuration["Notion:CharactersDatabaseId"];
-            var civDbId = _configuration["Notion:CivilizationsDatabaseId"];
-            var battleDbId = _configuration["Notion:BattlesDatabaseId"];
-            var ageDbId = _configuration["Notion:AgesDatabaseId"];
-
-            bool hasAnyDbConfigured = 
-                (!string.IsNullOrEmpty(notionDatabaseId) && !notionDatabaseId.Contains("CONFIGURE_IN_APPSETTINGS")) ||
-                (!string.IsNullOrEmpty(charDbId) && !charDbId.Contains("CONFIGURE_IN_APPSETTINGS")) ||
-                (!string.IsNullOrEmpty(civDbId) && !civDbId.Contains("CONFIGURE_IN_APPSETTINGS")) ||
-                (!string.IsNullOrEmpty(battleDbId) && !battleDbId.Contains("CONFIGURE_IN_APPSETTINGS")) ||
-                (!string.IsNullOrEmpty(ageDbId) && !ageDbId.Contains("CONFIGURE_IN_APPSETTINGS"));
-
-            // Si la configuración no está establecida (valores por defecto), no sincronizar
-            if (string.IsNullOrEmpty(notionSecret) || notionSecret.Contains("CONFIGURE_IN_APPSETTINGS") || !hasAnyDbConfigured)
+            if (!NotionConfiguration.IsConfigured(key => _configuration[key]))
             {
                 _logger.LogWarning("Notion sync is disabled: Configuration values not set. Please configure Notion:Secret and at least one DatabaseId.");
                 return;
@@ -46,16 +32,6 @@ namespace ForgottenEmpire.HostedServices
 
             var pollingSeconds = _configuration.GetValue<int>("Notion:PollingIntervalSeconds", 300);
             _logger.LogInformation("Notion sync worker started. Polling every {PollingSeconds} seconds.", pollingSeconds);
-
-            // Esperar 10 segundos antes de la primera sincronización para permitir que la aplicación inicie correctamente
-            try
-            {
-                await Task.Delay(TimeSpan.FromSeconds(10), stoppingToken);
-            }
-            catch (OperationCanceledException)
-            {
-                return;
-            }
 
             while (!stoppingToken.IsCancellationRequested)
             {

@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using System.IO;
 using System.Text; // Para Encoding
 using Application.Interfaces;
@@ -13,6 +14,8 @@ using Microsoft.OpenApi.Models;
 using System.Net.Http.Headers;
 
 var builder = WebApplication.CreateBuilder(args);
+
+LoadLocalEnvironmentOverrides(builder.Configuration, builder.Environment.ContentRootPath);
 
 // 🔒 SEGURIDAD: CORS configurado desde appsettings para mayor flexibilidad
 var MyAllowSpecificOrigins = "_myAllowSpecificOrigins";
@@ -166,3 +169,43 @@ app.MapControllers();
 app.MapHealthChecks("/health");
 
 app.Run();
+
+static void LoadLocalEnvironmentOverrides(ConfigurationManager configuration, string contentRootPath)
+{
+    var envFilePath = Path.Combine(contentRootPath, ".env.local");
+    if (!File.Exists(envFilePath))
+    {
+        return;
+    }
+
+    var overrides = new Dictionary<string, string?>(StringComparer.OrdinalIgnoreCase);
+    foreach (var line in File.ReadAllLines(envFilePath))
+    {
+        var trimmed = line.Trim();
+        if (string.IsNullOrEmpty(trimmed) || trimmed.StartsWith("#", StringComparison.Ordinal))
+        {
+            continue;
+        }
+
+        var separatorIndex = trimmed.IndexOf('=');
+        if (separatorIndex <= 0)
+        {
+            continue;
+        }
+
+        var key = trimmed.Substring(0, separatorIndex).Trim();
+        var value = trimmed.Substring(separatorIndex + 1).Trim().Trim('"');
+        if (string.IsNullOrEmpty(key) || value is null)
+        {
+            continue;
+        }
+
+        overrides[key] = value;
+    }
+
+    if (overrides.Count > 0)
+    {
+        configuration.AddInMemoryCollection(overrides);
+    }
+}
+

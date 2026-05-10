@@ -1,5 +1,6 @@
 using System;
 using System.Linq;
+using Domain;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
 using Microsoft.Extensions.DependencyInjection;
@@ -12,8 +13,7 @@ namespace Infrastructure
         public static void Initialize(IServiceProvider serviceProvider)
         {
             var configuration = serviceProvider.GetService<IConfiguration>();
-            var notionSecret = configuration?["Notion:Secret"];
-            var notionDatabaseId = configuration?["Notion:DatabaseId"];
+            var notionConfigured = configuration != null && NotionConfiguration.IsConfigured(key => configuration[key]);
 
             using (var context = new ApplicationContext(
                 serviceProvider.GetRequiredService<DbContextOptions<ApplicationContext>>() ))
@@ -25,7 +25,7 @@ namespace Infrastructure
                     // Apply EF Core migrations if the database file exists or needs schema updates.
                     context.Database.Migrate();
 
-                    if (!string.IsNullOrWhiteSpace(notionSecret) && !string.IsNullOrWhiteSpace(notionDatabaseId))
+                    if (notionConfigured)
                     {
                         logger.LogInformation("Notion is configured. Skipping local database seeding.");
                         return;

@@ -1,5 +1,6 @@
 using Application.Interfaces;
 using Application.Models.Request;
+using Domain;
 using Domain.Entities;
 using Domain.Enums;
 using Domain.Interfaces;
@@ -42,7 +43,7 @@ namespace Application.Services
 
         public async Task SyncFromNotionAsync(CancellationToken ct)
         {
-            var notionToken = _configuration["Notion:Secret"];
+            var notionToken = NotionConfiguration.GetSecret(key => _configuration[key]);
             if (string.IsNullOrWhiteSpace(notionToken))
             {
                 throw new InvalidOperationException("Notion integration is not configured. Configure Notion:Secret in appsettings.");
@@ -52,13 +53,13 @@ namespace Application.Services
             _httpClient.DefaultRequestHeaders.Remove("Notion-Version");
             _httpClient.DefaultRequestHeaders.Add("Notion-Version", "2022-06-28");
 
-            await SyncDatabaseAsync(_configuration["Notion:AgesDatabaseId"], "age", ct);
-            await SyncDatabaseAsync(_configuration["Notion:CivilizationsDatabaseId"], "civilization", ct);
-            await SyncDatabaseAsync(_configuration["Notion:BattlesDatabaseId"], "battle", ct);
-            await SyncDatabaseAsync(_configuration["Notion:CharactersDatabaseId"], "character", ct);
+            await SyncDatabaseAsync(NotionConfiguration.GetAgesDatabaseId(key => _configuration[key]), "age", ct);
+            await SyncDatabaseAsync(NotionConfiguration.GetCivilizationsDatabaseId(key => _configuration[key]), "civilization", ct);
+            await SyncDatabaseAsync(NotionConfiguration.GetBattlesDatabaseId(key => _configuration[key]), "battle", ct);
+            await SyncDatabaseAsync(NotionConfiguration.GetCharactersDatabaseId(key => _configuration[key]), "character", ct);
             
             // Fallback for previous single database logic
-            await SyncDatabaseAsync(_configuration["Notion:DatabaseId"], "mixed", ct); 
+            await SyncDatabaseAsync(NotionConfiguration.GetDatabaseId(key => _configuration[key]), "mixed", ct); 
         }
 
         private async Task SyncDatabaseAsync(string? databaseId, string defaultType, CancellationToken ct)
