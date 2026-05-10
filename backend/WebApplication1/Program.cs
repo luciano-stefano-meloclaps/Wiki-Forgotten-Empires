@@ -1,3 +1,4 @@
+using System.IO;
 using System.Text; // Para Encoding
 using Application.Interfaces;
 using Application.Services;
@@ -87,14 +88,31 @@ builder.Services.AddAuthentication("Bearer") //Especifica que el esquema de aute
         };
     });
 
-// Configure DbContext with PostgreSQL (Render)
+// Configure DbContext with SQLite for a lightweight local database
 builder.Services.AddDbContext<ApplicationContext>(options =>
 {
-    // Obtenemos la cadena de conexi�n correcta del appsettings.json
     var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
 
-    // Configuramos EF Core para que use PostgreSQL con esa cadena de conexi�n
-    options.UseNpgsql(connectionString);
+    if (string.IsNullOrWhiteSpace(connectionString))
+    {
+        connectionString = Path.Combine(builder.Environment.ContentRootPath, "database", "wiki-forgotten-empires.db");
+        connectionString = $"Data Source={connectionString}";
+    }
+    else
+    {
+        const string sqlitePrefix = "Data Source=";
+        if (connectionString.StartsWith(sqlitePrefix, StringComparison.OrdinalIgnoreCase))
+        {
+            var dbPath = connectionString.Substring(sqlitePrefix.Length).Trim();
+            if (!Path.IsPathRooted(dbPath))
+            {
+                dbPath = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, dbPath));
+                connectionString = $"{sqlitePrefix}{dbPath}";
+            }
+        }
+    }
+
+    options.UseSqlite(connectionString);
 });
 
 //Age
