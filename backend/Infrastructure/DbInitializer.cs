@@ -1,5 +1,4 @@
 using System;
-using System.IO;
 using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Microsoft.Extensions.Configuration;
@@ -53,22 +52,13 @@ namespace Infrastructure
                         scriptPath = "/app/database/backup_datos.sql";
                     }
 
-                    if (File.Exists(scriptPath))
+                    if (context.Database.IsSqlite())
                     {
-                        if (context.Database.IsSqlite())
-                        {
-                            string sql = File.ReadAllText(scriptPath);
-                            context.Database.ExecuteSqlRaw(sql);
-                            logger.LogInformation("Database seeded successfully from SQLite script.");
-                        }
-                        else
-                        {
-                            logger.LogInformation("Skipping SQLite seed script on non-SQLite database. Tables were created by EF Core.");
-                        }
+                        DbSeeder.Seed(context, logger);
                     }
                     else
                     {
-                        logger.LogWarning("Seed script not found at: {Path}", scriptPath);
+                        logger.LogInformation("SQLite seed support is disabled for non-SQLite providers. Use Notion sync or provider-specific seed scripts if needed.");
                     }
                 }
                 catch (Exception ex)
