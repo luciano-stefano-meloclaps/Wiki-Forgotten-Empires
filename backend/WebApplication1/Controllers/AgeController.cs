@@ -1,9 +1,7 @@
 ﻿using Application.Interfaces;
 using Application.Models.Request;
-using Domain.Relations;
 using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace ForgottenEmpire.Controllers
 {

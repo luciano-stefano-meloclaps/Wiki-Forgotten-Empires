@@ -1,42 +1,48 @@
 using Domain.Entities;
 using Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
     public class TerritoryRepository : ITerritoryRepository
     {
-        private readonly ApplicationContext _context;
+        private readonly INotionDataStore _notionStore;
 
-        public TerritoryRepository(ApplicationContext context)
+        public TerritoryRepository(INotionDataStore notionStore)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _notionStore = notionStore ?? throw new ArgumentNullException(nameof(notionStore));
+        }
+
+        private void EnsureInitialized()
+        {
+            if (!_notionStore.IsInitialized)
+            {
+                throw new InvalidOperationException("Los datos de Notion no están disponibles. Por favor, sincronice primero.");
+            }
         }
 
         public async Task<Territory?> GetTerritoryByName(string name, CancellationToken ct)
         {
-            return await _context.Territories
-                .FirstOrDefaultAsync(t => t.Name.ToLower() == name.ToLower(), ct);
+            EnsureInitialized();
+            return _notionStore.GetTerritories().FirstOrDefault(t => t.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         public async Task<List<Territory>> GetTerritoriesByNames(IEnumerable<string> names, CancellationToken ct)
         {
+            EnsureInitialized();
             var normalizedNames = names
                 .Where(name => !string.IsNullOrWhiteSpace(name))
-                .Select(name => name.Trim().ToLower())
-                .Distinct()
+                .Select(name => name.Trim())
+                .Distinct(StringComparer.OrdinalIgnoreCase)
                 .ToList();
 
-            return await _context.Territories
-                .Where(t => normalizedNames.Contains(t.Name.ToLower()))
-                .ToListAsync(ct);
+            return _notionStore.GetTerritories()
+                .Where(t => normalizedNames.Contains(t.Name, StringComparer.OrdinalIgnoreCase))
+                .ToList();
         }
 
         public async Task<Territory> CreateTerritory(Territory territory, CancellationToken ct)
         {
-            await _context.Territories.AddAsync(territory, ct);
-            await _context.SaveChangesAsync(ct);
-            return territory;
+            throw new NotSupportedException("No se permite crear territorios desde la API. Los datos deben gestionarse en Notion.");
         }
     }
 }

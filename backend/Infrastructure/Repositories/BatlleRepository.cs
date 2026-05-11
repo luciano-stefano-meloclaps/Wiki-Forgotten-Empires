@@ -1,63 +1,56 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;
 
 namespace Infrastructure.Repositories
 {
     public class BatlleRepository : IBattleRepository
     {
-        private readonly ApplicationContext _context;
+        private readonly INotionDataStore _notionStore;
 
-        public BatlleRepository(ApplicationContext context)
+        public BatlleRepository(INotionDataStore notionStore)
         {
-            _context = context ?? throw new ArgumentNullException(nameof(context));
+            _notionStore = notionStore ?? throw new ArgumentNullException(nameof(notionStore));
+        }
+
+        private void EnsureInitialized()
+        {
+            if (!_notionStore.IsInitialized)
+            {
+                throw new InvalidOperationException("Los datos de Notion no están disponibles. Por favor, sincronice primero.");
+            }
         }
 
         public async Task<IEnumerable<Battle>> GetAllBattles(CancellationToken ct)
         {
-            return await _context.Battles
-            .AsNoTracking()
-            .ToListAsync(ct);
+            EnsureInitialized();
+            return _notionStore.GetBattles().ToList();
         }
 
         public async Task<Battle?> GetByIdBattle(int id, CancellationToken ct)
         {
-            return await _context.Battles
-            .Include(b => b.Age)
-            .Include(b => b.Character) //Tabla intermedia
-                .ThenInclude(cb => cb.Character)
-            .Include(b => b.Civilization)//Tabla intermedia
-                .ThenInclude(cb => cb.Civilization)
-            .FirstOrDefaultAsync(b => b.Id == id, ct);
+            EnsureInitialized();
+            return _notionStore.GetBattleById(id);
         }
 
         public async Task<Battle> CreateBattle(Battle battle, CancellationToken ct)
         {
-            await _context.Battles.AddAsync(battle, ct);
-            await _context.SaveChangesAsync(ct);
-            return battle;
+            throw new NotSupportedException("No se permite crear batallas desde la API. Los datos deben gestionarse en Notion.");
         }
 
         public async Task<Battle?> GetBattleByName(string name, CancellationToken ct)
         {
-            return await _context.Battles
-                .Include(b => b.Age)
-                .Include(b => b.Character)
-                    .ThenInclude(cb => cb.Character)
-                .Include(b => b.Civilization)
-                    .ThenInclude(cb => cb.Civilization)
-                .FirstOrDefaultAsync(b => b.Name.ToLower() == name.ToLower(), ct);
+            EnsureInitialized();
+            return _notionStore.GetBattles().FirstOrDefault(b => b.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         public async Task UpdateBattle(Battle battle, CancellationToken ct)
         {
-            await _context.SaveChangesAsync(ct);
+            throw new NotSupportedException("No se permite actualizar batallas desde la API. Los datos deben gestionarse en Notion.");
         }
 
         public async Task DeleteBattle(Battle battle, CancellationToken ct)
         {
-            _context.Battles.Remove(battle);
-            await _context.SaveChangesAsync(ct);
+            throw new NotSupportedException("No se permite eliminar batallas desde la API. Los datos deben gestionarse en Notion.");
         }
     }
 }
