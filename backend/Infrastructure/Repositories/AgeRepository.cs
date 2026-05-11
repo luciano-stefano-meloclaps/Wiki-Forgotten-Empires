@@ -1,4 +1,4 @@
-﻿using Domain.Interfaces;
+using Domain.Interfaces;
 using Domain.Entities;
 using Domain.Relations;
 
@@ -21,19 +21,13 @@ namespace Infrastructure.Repositories
             }
         }
 
-        public async Task<List<Age>> GetAllAges(CancellationToken ct)
+        public async Task<IEnumerable<Age>> GetAllAges(CancellationToken ct)
         {
             EnsureInitialized();
-            return _notionStore.GetAges().ToList();
+            return _notionStore.GetAges();
         }
 
-        public async Task<Age?> GetAgeDetailById(int id, CancellationToken ct)
-        {
-            EnsureInitialized();
-            return _notionStore.GetAgeById(id);
-        }
-
-        public async Task<Age?> GetTrackedAgeById(int id, CancellationToken ct)
+        public async Task<Age?> GetAgeById(int id, CancellationToken ct)
         {
             EnsureInitialized();
             return _notionStore.GetAgeById(id);
@@ -59,36 +53,5 @@ namespace Infrastructure.Repositories
             throw new NotSupportedException("No se permite eliminar edades desde la API. Los datos deben gestionarse en Notion.");
         }
 
-        /////// METODOS para VINCULAR relaciones por ID unico \\\\\\
-        public async Task<bool> LinkBattleAsync(int ageId, int battleId, CancellationToken ct)
-        {
-            throw new NotImplementedException("Relations are managed by Notion sync. Update data directly in Notion database.");
-        }
-
-        public async Task<bool> LinkCharacterAsync(int ageId, int characterId, CancellationToken ct)
-        {
-            throw new NotImplementedException("Relations are managed by Notion sync. Update data directly in Notion database.");
-        }
-
-        public async Task<bool> LinkCivilizationAsync(int ageId, int civilizationId, CancellationToken ct)
-        {
-            throw new NotImplementedException("Relations are managed by Notion sync. Update data directly in Notion database.");
-        }
-
-        /////// METODOS para DESVINCULAR relaciones por ID unico \\\\\\
-        public async Task<bool> UnlinkBattleAsync(int ageId, int battleId, CancellationToken ct)
-        {
-            throw new NotImplementedException("Relations are managed by Notion sync. Update data directly in Notion database.");
-        }
-
-        public async Task<bool> UnlinkCharacterAsync(int ageId, int characterId, CancellationToken ct)
-        {
-            throw new NotImplementedException("Relations are managed by Notion sync. Update data directly in Notion database.");
-        }
-
-        public async Task<bool> UnlinkCivilizationAsync(int ageId, int civilizationId, CancellationToken ct)
-        {
-            throw new NotImplementedException("Relations are managed by Notion sync. Update data directly in Notion database.");
-        }
     }
 }

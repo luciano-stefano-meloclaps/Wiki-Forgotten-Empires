@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using Application.Interfaces;
 using Application.Models.Dto;
 using Application.Models.Request;
@@ -37,7 +37,7 @@ public class AgeService : IAgeService
             throw new InvalidOperationException("Los datos de Notion no están disponibles. Por favor, sincronice primero.");
         }
 
-        var age = await _ageRepository.GetAgeDetailById(id, ct);
+        var age = await _ageRepository.GetAgeById(id, ct);
         return age is null ? null : AgeDetailDto.ToDto(age);
     }
 
@@ -70,75 +70,22 @@ public class AgeService : IAgeService
 
     public async Task<(bool Success, string ErrorMessage)> UpdateAgeCivilizationRelation(int ageId, int civilizationId, CancellationToken ct)
     {
-        var age = await _ageRepository.GetTrackedAgeById(ageId, ct);
-        if (age is null)
-        {
-            return (false, $"No se encontró la Age con id {ageId}.");
-        }
-
-        var success = await _ageRepository.LinkCivilizationAsync(ageId, civilizationId, ct);
-
-        if (!success)
-        {
-            return (false, $"No se encontró la Civilization con id {civilizationId}.");
-        }
-
-        return (true, string.Empty);
+        return (false, "No se permiten modificaciones de relaciones desde la API. Los datos deben gestionarse en Notion.");
     }
 
     /////// METODOS para DESVINCULAR relaciones por ID unico \\\\\\
     public async Task<(bool Success, string ErrorMessage)> RemoveAgeBattleRelation(int ageId, int battleId, CancellationToken ct)
     {
-        var age = await _ageRepository.GetTrackedAgeById(ageId, ct);
-        if (age is null)
-        {
-            return (false, $"No se encontró la Age con id {ageId}.");
-        }
-
-        // Delegar la op desvinculación al repositorio
-        var success = await _ageRepository.UnlinkBattleAsync(ageId, battleId, ct);
-
-        if (!success)
-        {
-            return (false, $"No se pudo remover la relación: la Batalla con id {battleId} no existe o no está relacionada con la Edad con id {ageId}.");
-        }
-
-        return (true, string.Empty);
+        return (false, "No se permiten modificaciones de relaciones desde la API. Los datos deben gestionarse en Notion.");
     }
 
     public async Task<(bool Success, string ErrorMessage)> RemoveAgeCharacterRelation(int ageId, int characterId, CancellationToken ct)
     {
-        var age = await _ageRepository.GetTrackedAgeById(ageId, ct);
-        if (age is null)
-        {
-            return (false, $"No se encontró la Age con id {ageId}.");
-        }
-
-        var success = await _ageRepository.UnlinkCharacterAsync(ageId, characterId, ct);
-
-        if (!success)
-        {
-            return (false, $"No se pudo remover la relación: el Personaje con id {characterId} no existe o no está relacionado con la Edad con id {ageId}.");
-        }
-
-        return (true, string.Empty);
+        return (false, "No se permiten modificaciones de relaciones desde la API. Los datos deben gestionarse en Notion.");
     }
 
     public async Task<(bool Success, string ErrorMessage)> RemoveAgeCivilizationRelation(int ageId, int civilizationId, CancellationToken ct)
     {
-        var age = await _ageRepository.GetTrackedAgeById(ageId, ct);
-        if (age is null)
-        {
-            return (false, $"No se encontró la Age con id {ageId}.");
-        }
-
-        var success = await _ageRepository.UnlinkCivilizationAsync(ageId, civilizationId, ct);
-
-        if (!success)
-        {
-            return (false, $"No se encontró una relación entre la Age con id {ageId} y la Civilization con id {civilizationId}.");
-        }
-
-        return (true, string.Empty);
+        return (false, "No se permiten modificaciones de relaciones desde la API. Los datos deben gestionarse en Notion.");
     }
 }

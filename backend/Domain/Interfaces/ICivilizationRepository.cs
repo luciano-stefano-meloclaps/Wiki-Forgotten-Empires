@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 
 namespace Domain.Interfaces
 {
@@ -6,7 +6,7 @@ namespace Domain.Interfaces
     {
         Task<IEnumerable<Civilization>> GetAllCivilization(CancellationToken ct);
 
-        Task<Civilization?> GetCivizlizationById(int id, CancellationToken ct);
+        Task<Civilization?> GetCivilizationById(int id, CancellationToken ct);
 
         Task<Civilization?> GetCivilizationByName(string name, CancellationToken ct);
 

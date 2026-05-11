@@ -1,4 +1,4 @@
-﻿using Application.Interfaces;
+using Application.Interfaces;
 using Application.Models.Dto;
 using Application.Models.Request;
 using Domain.Entities;
@@ -29,7 +29,7 @@ namespace Application.Services
 
         public async Task<CivilizationDetailDto?> GetCivilizationById(int id, CancellationToken ct)
         {
-            var civilization = await _civilizationRepository.GetCivizlizationById(id, ct);
+            var civilization = await _civilizationRepository.GetCivilizationById(id, ct);
             return civilization is null ? null : CivilizationDetailDto.ToDto(civilization);
         }
 
@@ -45,7 +45,7 @@ namespace Application.Services
 
         public async Task<bool> UpdateCivilization(int id, UpdateCivilizationRequest request, CancellationToken ct)
         {
-            var civilization = await _civilizationRepository.GetCivizlizationById(id, ct);
+            var civilization = await _civilizationRepository.GetCivilizationById(id, ct);
             if (civilization is null)
             {
                 return false;
@@ -61,7 +61,7 @@ namespace Application.Services
 
         public async Task<bool> DeleteCivilization(int id, CancellationToken ct)
         {
-            var civilization = await _civilizationRepository.GetCivizlizationById(id, ct);
+            var civilization = await _civilizationRepository.GetCivilizationById(id, ct);
             if (civilization is null)
             {
                 return false;

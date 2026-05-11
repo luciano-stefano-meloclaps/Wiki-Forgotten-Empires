@@ -1,4 +1,4 @@
-﻿using Domain.Entities;
+using Domain.Entities;
 using Domain.Interfaces;
 
 namespace Infrastructure.Repositories
@@ -26,7 +26,7 @@ namespace Infrastructure.Repositories
             return _notionStore.GetCivilizations().ToList();
         }
 
-        public async Task<Civilization?> GetCivizlizationById(int id, CancellationToken ct)
+        public async Task<Civilization?> GetCivilizationById(int id, CancellationToken ct)
         {
             EnsureInitialized();
             return _notionStore.GetCivilizationById(id);
