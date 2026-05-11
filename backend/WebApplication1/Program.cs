@@ -8,7 +8,6 @@ using ForgottenEmpires.Application.Services;
 using ForgottenEmpire.HostedServices;
 using Infrastructure;
 using Infrastructure.Repositories;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.IdentityModel.Tokens;
 using Microsoft.OpenApi.Models;
 using System.Net.Http.Headers;
@@ -91,32 +90,8 @@ builder.Services.AddAuthentication("Bearer") //Especifica que el esquema de aute
         };
     });
 
-// Configure DbContext with SQLite for a lightweight local database
-builder.Services.AddDbContext<ApplicationContext>(options =>
-{
-    var connectionString = builder.Configuration.GetConnectionString("DefaultConnection");
-
-    if (string.IsNullOrWhiteSpace(connectionString))
-    {
-        connectionString = Path.Combine(builder.Environment.ContentRootPath, "database", "wiki-forgotten-empires.db");
-        connectionString = $"Data Source={connectionString}";
-    }
-    else
-    {
-        const string sqlitePrefix = "Data Source=";
-        if (connectionString.StartsWith(sqlitePrefix, StringComparison.OrdinalIgnoreCase))
-        {
-            var dbPath = connectionString.Substring(sqlitePrefix.Length).Trim();
-            if (!Path.IsPathRooted(dbPath))
-            {
-                dbPath = Path.GetFullPath(Path.Combine(builder.Environment.ContentRootPath, dbPath));
-                connectionString = $"{sqlitePrefix}{dbPath}";
-            }
-        }
-    }
-
-    options.UseSqlite(connectionString);
-});
+// Register NotionDataStore as singleton for in-memory data storage
+builder.Services.AddSingleton<Domain.Interfaces.INotionDataStore, Application.Services.NotionDataStore>();
 
 //Age
 builder.Services.AddScoped<IAgeRepository, AgeRepository>();
@@ -142,10 +117,17 @@ builder.Services.AddHostedService<NotionSyncHostedService>();
 
 var app = builder.Build();
 
-// Initialize the database
+// Validate Notion configuration at startup
 using (var scope = app.Services.CreateScope())
 {
-    DbInitializer.Initialize(scope.ServiceProvider);
+    var config = scope.ServiceProvider.GetRequiredService<IConfiguration>();
+    if (!Domain.NotionConfiguration.IsConfigured(key => config[key]))
+    {
+        throw new InvalidOperationException(
+            "STARTUP ERROR: Notion integration is not configured. " +
+            "Set Notion:Secret and at least one DatabaseId in appsettings.json or environment variables."
+        );
+    }
 }
 
 // Configure the HTTP request pipeline.

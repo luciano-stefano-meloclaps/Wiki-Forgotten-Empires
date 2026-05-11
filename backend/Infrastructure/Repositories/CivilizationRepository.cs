@@ -1,63 +1,56 @@
 ﻿using Domain.Entities;
 using Domain.Interfaces;
-using Microsoft.EntityFrameworkCore;//Mirar usings
 
 namespace Infrastructure.Repositories
 {
-    public class CivilizationRepository(ApplicationContext context) : ICivilizationRepository
+    public class CivilizationRepository : ICivilizationRepository
     {
-        private readonly ApplicationContext _context = context;
+        private readonly INotionDataStore _notionStore;
+
+        public CivilizationRepository(INotionDataStore notionStore)
+        {
+            _notionStore = notionStore ?? throw new ArgumentNullException(nameof(notionStore));
+        }
+
+        private void EnsureInitialized()
+        {
+            if (!_notionStore.IsInitialized)
+            {
+                throw new InvalidOperationException("Los datos de Notion no están disponibles. Por favor, sincronice primero.");
+            }
+        }
 
         public async Task<IEnumerable<Civilization>> GetAllCivilization(CancellationToken ct)
         {
-            return await _context.Civilizations
-                .AsNoTracking()
-                .Include(c => c.Territories)
-                    .ThenInclude(ct => ct.Territory)
-                .Include(c => c.Ages)
-                .Include(c => c.Characters)
-                .Include(c => c.Battles)
-                .ToListAsync(ct);
+            EnsureInitialized();
+            return _notionStore.GetCivilizations().ToList();
         }
 
         public async Task<Civilization?> GetCivizlizationById(int id, CancellationToken ct)
         {
-            return await _context.Civilizations
-                .Include(c => c.Characters).ThenInclude(ch => ch.Age) //Ver mas de los pj
-                .Include(c => c.Ages).ThenInclude(ca => ca.Age) //Tabla intermedia
-                .Include(c => c.Battles).ThenInclude(cb => cb.Battle) //Tabla intermedia
-                .Include(c => c.Territories).ThenInclude(ct => ct.Territory)
-                .FirstOrDefaultAsync(c => c.Id == id, ct);
+            EnsureInitialized();
+            return _notionStore.GetCivilizationById(id);
         }
 
         public async Task<Civilization?> GetCivilizationByName(string name, CancellationToken ct)
         {
-            var normalizedName = name.Trim().ToLower();
-            return await _context.Civilizations
-                .Include(c => c.Characters)
-                .Include(c => c.Ages)
-                .Include(c => c.Battles)
-                .Include(c => c.Territories)
-                    .ThenInclude(ct => ct.Territory)
-                .FirstOrDefaultAsync(c => c.Name.ToLower() == normalizedName, ct);
+            EnsureInitialized();
+            return _notionStore.GetCivilizations().FirstOrDefault(c => c.Name.Equals(name, StringComparison.OrdinalIgnoreCase));
         }
 
         public async Task<Civilization> CreateCivilization(Civilization civilization, CancellationToken ct)
         {
-            await _context.Civilizations.AddAsync(civilization);
-            await _context.SaveChangesAsync(ct);
-            return civilization;
+            throw new NotSupportedException("No se permite crear civilizaciones desde la API. Los datos deben gestionarse en Notion.");
         }
 
         public async Task UpdateCivilization(Civilization civilization, CancellationToken ct)
         {
-            await _context.SaveChangesAsync(ct);
+            throw new NotSupportedException("No se permite actualizar civilizaciones desde la API. Los datos deben gestionarse en Notion.");
         }
 
         public async Task DeleteCivilization(Civilization civilization, CancellationToken ct)
         {
-            _context.Civilizations.Remove(civilization);
-            await _context.SaveChangesAsync(ct);
+            throw new NotSupportedException("No se permite eliminar civilizaciones desde la API. Los datos deben gestionarse en Notion.");
         }
     }
 }
